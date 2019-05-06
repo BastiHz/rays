@@ -28,6 +28,7 @@ class App:
         width = 800
         height = 600
         self.main_surface = pg.display.set_mode((width, height))
+        pg.mouse.set_visible(False)
         self.clock = pg.time.Clock()
         self.fps = 60
         self.running = True
