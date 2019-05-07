@@ -12,7 +12,7 @@ class Ray:
         self.color = (255, 128, 0)
         self.wall_intersect = []
 
-    def update(self, pos):
+    def update_position(self, pos):
         self.x1, self.y1 = pos
         self.x2 = self.x1 + self.dx
         self.y2 = self.y1 + self.dy
@@ -25,20 +25,13 @@ class Ray:
                 (self.x1, self.y1),
                 self.wall_intersect
             )
-            pg.draw.circle(
-                target_surf,
-                self.color,
-                (int(self.wall_intersect[0]),
-                 int(self.wall_intersect[1])),
-                5
-            )
-        else:
-            pg.draw.line(
-                target_surf,
-                self.color,
-                (self.x1, self.y1),
-                (self.x2, self.y2)
-            )
+            # pg.draw.circle(
+            #     target_surf,
+            #     self.color,
+            #     (int(self.wall_intersect[0]),
+            #      int(self.wall_intersect[1])),
+            #     5
+            # )
 
     def cast(self, wall):
         self.wall_intersect = ()

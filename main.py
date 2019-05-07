@@ -29,19 +29,17 @@ class App:
         height = 600
         self.main_surface = pg.display.set_mode((width, height))
         pg.mouse.set_visible(False)
-        self.clock = pg.time.Clock()
-        self.fps = 60
         self.running = True
         self.scene = top_view_scene.TopView(self)
 
     def run(self):
+        clock = pg.time.Clock()
         while self.running:
-            self.clock.tick(self.fps)
+            clock.tick(60)
             self.handle_input()
             self.scene.update()
             self.scene.draw(self.main_surface)
             pg.display.update()
-        print("foo")
 
     def handle_input(self):
         for event in pg.event.get():

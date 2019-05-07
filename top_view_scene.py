@@ -9,15 +9,15 @@ class TopView:
         self.app = app
         self.ray_origin_pos = (0, 0)
         self.rays = []
-        for a in range(0, 360, 10):
-            print(a)
+        for a in range(0, 360, 1):
+            # print(a)
             self.rays.append(Ray(self.ray_origin_pos, math.radians(a)))
         self.walls = [
             Wall(600, 200, 500, 500),
-            Wall(0, 0, 800, 0),
-            Wall(0, 0, 0, 600),
-            Wall(800, 0, 800, 600),
-            Wall(0, 600, 800, 600)
+            Wall(0, 0, 800-2, 0),  # 2 = hardcoded wall thickness
+            Wall(0, 0, 0, 600-2),  # '-2' makes left and lower wall visible
+            Wall(800-2, 0, 800-2, 600-2),
+            Wall(0, 600-2, 800-2, 600-2)
         ]
 
     def handle_input(self, event):
@@ -28,7 +28,7 @@ class TopView:
     def update(self):
         mouse_pos = pg.mouse.get_pos()
         for r in self.rays:
-            r.update(mouse_pos)
+            r.update_position(mouse_pos)
             for w in self.walls:
                 r.cast(w)
 
