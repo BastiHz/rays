@@ -39,14 +39,12 @@ class Ray:
             u = -((w.x1 - w.x2) * (w.y1 - self.y1)
                   - (w.y1 - w.y2) * (w.x1 - self.x1)) / denominator
             if 0 < t < 1 and u > 0:
-                w_intersect = (
-                    w.x1 + t * (w.x2 - w.x1),
-                    w.y1 + t * (w.y2 - w.y1)
-                )
+                intersect_x = w.x1 + t * (w.x2 - w.x1)
+                intersect_y = w.y1 + t * (w.y2 - w.y1)
                 distance = math.hypot(
-                    self.x1 - w_intersect [0],
-                    self.y1 - w_intersect [1]
+                    self.x1 - intersect_x,
+                    self.y1 - intersect_y
                 )
                 if distance < min_distance:
                     min_distance = distance
-                    self.wall_intersect = w_intersect
+                    self.wall_intersect = (intersect_x, intersect_y)
