@@ -14,14 +14,17 @@ class TopView:
         self.rays = []
         for angle in range(0, 360, 5):
             self.rays.append(Ray(self.ray_origin, math.radians(angle)))
+        w, h = self.app.main_surface.get_rect().size
+        # -1 because otherwise w and h are off screen:
+        w -= 1
+        h -= 1
         self.walls = [
             # Wall(600, 200, 500, 500),
-            Wall(0, 0, 800, 0),
-            Wall(0, 0, 0, 600),
-            Wall(800-2, 0, 800-2, 600),  # 2 = hardcoded wall thickness
-            Wall(0, 600-2, 800, 600-2)   # '-2' makes left and lower wall visible
+            Wall(0, 0, w, 0),
+            Wall(0, 0, 0, h),
+            Wall(w, 0, w, h),
+            Wall(0, h, w, h)
         ]
-        w, h = self.app.main_surface.get_rect().size
         for _ in range(5):
             self.walls.append(Wall(
                 random.randint(0, w),

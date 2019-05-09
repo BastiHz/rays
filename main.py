@@ -28,6 +28,7 @@ class App:
     def __init__(self):
         width = 800
         height = 600
+        os.environ["SDL_VIDEO_CENTERED"] = "1"
         self.main_surface = pg.display.set_mode((width, height))
         pg.mouse.set_visible(False)
         self.running = True
@@ -53,5 +54,4 @@ class App:
                 self.scene.handle_input(event)
 
 
-os.environ["SDL_VIDEO_CENTERED"] = "1"
 App().run()
