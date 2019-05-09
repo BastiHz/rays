@@ -31,9 +31,7 @@ class TopView:
             ))
 
     def handle_input(self, event):
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_ESCAPE:
-                self.app.running = False
+        pass
 
     def update(self):
         self.ray_origin = pg.mouse.get_pos()

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
+import sys
 import pygame as pg
 
 import top_view_scene
@@ -43,8 +44,11 @@ class App:
 
     def handle_input(self):
         for event in pg.event.get():
-            if event.type == pg.QUIT:
-                self.running = False
+            if (event.type == pg.QUIT or
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                # Quit immediately without letting the current loop iteration
+                # run to completion.
+                sys.exit()
             else:
                 self.scene.handle_input(event)
 
