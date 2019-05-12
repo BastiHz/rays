@@ -5,17 +5,22 @@ import pygame as pg
 class Ray:
     def __init__(self, pos, angle):
         self.x1, self.y1 = pos
-        self.dx = math.cos(angle)
-        self.dy = math.sin(angle)
-        self.x2 = self.x1 + self.dx
-        self.y2 = self.y1 + self.dy
+        self.angle = angle
+        self.x2 = self.x1 + math.cos(angle)
+        self.y2 = self.y1 + math.sin(angle)
         self.color = (255, 196, 0)
         self.wall_intersect = []
 
-    def update_position(self, pos):
-        self.x1, self.y1 = pos
-        self.x2 = self.x1 + self.dx
-        self.y2 = self.y1 + self.dy
+    def move(self, dist_x, dist_y):
+        self.x1 += dist_x
+        self.y1 += dist_y
+        self.x2 += dist_x
+        self.y2 += dist_y
+        
+    def rotate(self, turn_angle):
+        self.angle += turn_angle
+        self.x2 = self.x1 + math.cos(self.angle)
+        self.y2 = self.y1 + math.sin(self.angle)
 
     def draw(self, target_surf):
         if self.wall_intersect:

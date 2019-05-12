@@ -27,31 +27,32 @@ import top_view_scene
 class App:
     def __init__(self):
         width = 800
-        height = 600
+        height = 400
         os.environ["SDL_VIDEO_CENTERED"] = "1"
         self.main_surface = pg.display.set_mode((width, height))
         pg.mouse.set_visible(False)
         self.running = True
-        self.scene = top_view_scene.TopView(self)
+        self.scene = top_view_scene.TopView(width // 2, height)
 
     def run(self):
         clock = pg.time.Clock()
         while self.running:
-            clock.tick(60)
-            self.handle_input()
-            self.scene.update()
+            dt = clock.tick(60) / 1000
+            events, pressed = self.handle_input()
+            self.scene.update(events, pressed, dt)
             self.scene.draw(self.main_surface)
             pg.display.update()
 
     def handle_input(self):
-        for event in pg.event.get():
+        events = pg.event.get()
+        pressed = pg.key.get_pressed()
+        for event in events:
             if (event.type == pg.QUIT or
                 event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 # Quit immediately without letting the current loop iteration
                 # run to completion.
                 sys.exit()
-            else:
-                self.scene.handle_input(event)
+        return events, pressed
 
 
 App().run()
