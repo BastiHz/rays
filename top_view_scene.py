@@ -1,5 +1,4 @@
 import math
-import random
 import pygame as pg
 from ray import Ray
 from wall import Wall
@@ -19,19 +18,27 @@ class TopView:
         w -= 1
         h -= 1
         self.walls = [
-            # Wall(600, 200, 500, 500),
-            Wall(0, 0, w, 0),
-            Wall(0, 0, 0, h),
-            Wall(w, 0, w, h),
-            Wall(0, h, w, h)
+            Wall(0, 0, w, 0),  # top
+            Wall(0, 0, 0, h),  # left
+            Wall(w, 0, w, h),  # right
+            Wall(0, h, w, h),  # bottom
+            # cube:
+            Wall(200, 100, 200, 250),
+            Wall(200, 250, 350, 250),
+            Wall(350, 250, 350, 100),
+            Wall(350, 100, 200, 100),
+            # triangle:
+            Wall(400, 350, 500, 500),
+            Wall(500, 500, 300, 500),
+            Wall(300, 500, 400, 350),
+            # pocket:
+            Wall(600, 50, 750, 50),
+            Wall(750, 50, 750, 250),
+            Wall(600, 50, 600, 150),
+            Wall(600, 150, 700, 150),
+            Wall(700, 150, 700, 100),
+            Wall(750, 250, 600, 250)
         ]
-        for _ in range(5):
-            self.walls.append(Wall(
-                random.randint(0, w),
-                random.randint(0, h),
-                random.randint(0, w),
-                random.randint(0, h)
-            ))
 
     def handle_input(self, event):
         pass
