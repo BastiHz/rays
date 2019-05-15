@@ -19,9 +19,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import sys
+import math
 import pygame as pg
 
 import top_view_scene
+import front_view_scene
+import ray
 
 
 class App:
@@ -32,15 +35,24 @@ class App:
         self.main_surface = pg.display.set_mode((width, height))
         pg.mouse.set_visible(False)
         self.running = True
-        self.scene = top_view_scene.TopView(width // 2, height)
+        scene_width = width // 2
+        self.raycaster = ray.RayCaster(scene_width // 2, height // 2, 0)
+        self.raycaster.make_new_rays(math.pi/2, scene_width)
+        self.scenes = [
+            top_view_scene.TopView(0, 0, scene_width, height, self.raycaster),
+            front_view_scene.FrontView(scene_width, 0, scene_width, height, self.raycaster)
+        ]
 
     def run(self):
         clock = pg.time.Clock()
         while self.running:
             dt = clock.tick(60) / 1000
             events, pressed = self.handle_input()
-            self.scene.update(events, pressed, dt)
-            self.scene.draw(self.main_surface)
+            self.raycaster.handle_input(events, pressed, dt)
+            for scene in self.scenes:
+                scene.handle_input(events, pressed, dt)
+                scene.update(dt)
+                scene.draw(self.main_surface)
             pg.display.update()
 
     def handle_input(self):
