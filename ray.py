@@ -12,6 +12,7 @@ class RayCaster:
         self.turn_speed = math.pi / 2  # rad/s
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
+        self.max_view_distance = 500
 
     def make_new_rays(self, fov, n):
         self.rays = []
@@ -46,9 +47,21 @@ class RayCaster:
         for i, r in enumerate(self.rays):
             self.hits[i] = r.cast(walls)
 
-    def draw(self, target_surface):
+    def draw_top_view(self, target_surface):
         for r in self.rays:
             r.draw(target_surface)
+
+    def draw_front_view(self, target_surface, surface_height, surface_half_height):
+        wall_color = (200, 200, 200)  # FIXME: Get this from each wall that is hit.
+        for i, h in enumerate(self.hits):
+            if h is not None and h <= self.max_view_distance:
+                h = (1 - h / self.max_view_distance) * surface_height
+                pg.draw.line(
+                    target_surface,
+                    wall_color,
+                    (i, surface_half_height - h / 2),
+                    (i, surface_half_height + h / 2)
+                )
 
 
 class Ray:
@@ -89,6 +102,10 @@ class Ray:
         # I check t with 0 <= t <= 1 like it says in wikipedia,
         # however thecodingtrain only uses '<' in the video.
         # I don't believe it matters much.
+        #
+        # As far as I understand 'u' is the distance to the intersect in units
+        # of ray length. So if the ray is 1 pixel long then a 'u' of 123 means
+        # a distance of 123 pixels to the wall.
         self.wall_intersect = ()
         min_distance = math.inf
         for w in walls:
@@ -106,5 +123,5 @@ class Ray:
                 if u < min_distance:
                     min_distance = u
                     self.wall_intersect = (intersect_x, intersect_y)
-
-        # TODO: return the distance u if a wall is hit or otherwise none.
+        if self.wall_intersect:
+            return min_distance

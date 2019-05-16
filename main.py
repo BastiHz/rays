@@ -21,41 +21,72 @@ import os
 import sys
 import math
 import pygame as pg
+from pprint import pprint
 
-import top_view_scene
-import front_view_scene
 import ray
+import wall
 
 
 class App:
     def __init__(self):
         width = 800
-        height = 400
+        self.height = 400
         os.environ["SDL_VIDEO_CENTERED"] = "1"
-        self.main_surface = pg.display.set_mode((width, height))
+        self.main_surface = pg.display.set_mode((width, self.height))
+        self.half_width = width // 2
+        self.half_height = self.height // 2
+        self.top_view = pg.Surface((self.half_width, self.height))
+        self.front_view = pg.Surface((self.half_width, self.height))
+
         pg.mouse.set_visible(False)
-        self.running = True
-        scene_width = width // 2
-        self.raycaster = ray.RayCaster(scene_width // 2, height // 2, 0)
-        self.raycaster.make_new_rays(math.pi/2, scene_width)
-        self.scenes = [
-            top_view_scene.TopView(0, 0, scene_width, height, self.raycaster),
-            front_view_scene.FrontView(scene_width, 0, scene_width, height, self.raycaster)
+        self.background_color = (20, 20, 20)
+
+        self.raycaster = ray.RayCaster(self.half_width // 2, self.half_height, 0)
+        self.raycaster.make_new_rays(math.pi/2, self.half_width)
+
+        # -1 because otherwise w and h are off screen:
+        w = self.half_width - 1
+        h = self.height - 1
+        self.walls = [
+            wall.Wall(0, 0, w, 0),  # top
+            wall.Wall(0, 0, 0, h),  # left
+            wall.Wall(w, 0, w, h),  # right
+            wall.Wall(0, h, w, h),  # bottom
+            # cube:
+            wall.Wall(100, 75, 100, 150),
+            wall.Wall(100, 150, 175, 150),
+            wall.Wall(175, 150, 175, 75),
+            wall.Wall(175, 75, 100, 75),
+            # triangle:
+            wall.Wall(200, 250, 250, 350),
+            wall.Wall(250, 350, 150, 350),
+            wall.Wall(150, 350, 200, 250),
+            # spiral:
+            wall.Wall(300, 50, 375, 50),
+            wall.Wall(375, 50, 375, 190),
+            wall.Wall(300, 50, 300, 125),
+            wall.Wall(300, 125, 340, 125),
+            wall.Wall(340, 125, 340, 80),
+            wall.Wall(375, 190, 300, 190)
         ]
 
     def run(self):
         clock = pg.time.Clock()
-        while self.running:
+        while True:
             dt = clock.tick(60) / 1000
-            events, pressed = self.handle_input()
-            self.raycaster.handle_input(events, pressed, dt)
-            for scene in self.scenes:
-                scene.handle_input(events, pressed, dt)
-                scene.update(dt)
-                scene.draw(self.main_surface)
+            self.handle_input(dt)
+            self.raycaster.update(dt, self.walls)
+            self.top_view.fill(self.background_color)
+            self.raycaster.draw_top_view(self.top_view)
+            for w in self.walls:
+                w.draw(self.top_view)
+            self.main_surface.blit(self.top_view, (0, 0))
+            self.front_view.fill(self.background_color)
+            self.raycaster.draw_front_view(self.front_view, self.height, self.half_height)
+            self.main_surface.blit(self.front_view, (self.half_width, 0))
             pg.display.update()
 
-    def handle_input(self):
+    def handle_input(self, dt):
         events = pg.event.get()
         pressed = pg.key.get_pressed()
         for event in events:
@@ -64,7 +95,9 @@ class App:
                 # Quit immediately without letting the current loop iteration
                 # run to completion.
                 sys.exit()
-        return events, pressed
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                pprint(self.raycaster.hits)
+        self.raycaster.handle_input(events, pressed, dt)
 
 
 App().run()
