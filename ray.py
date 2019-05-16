@@ -8,7 +8,7 @@ class RayCaster:
         self.x = x
         self.y = y
         self.heading = heading
-        self.move_speed = 40  # px/s
+        self.move_speed = 50  # px/s
         self.turn_speed = math.pi / 2  # rad/s
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
@@ -16,9 +16,14 @@ class RayCaster:
 
     def make_new_rays(self, fov, n):
         self.rays = []
-        for angle in numpy.linspace(-fov / 2, fov / 2, n):
-            self.rays.append(Ray(self.x, self.y, self.heading, angle))
-        self.hits = [None] * len(self.rays)
+        self.hits = [None] * n
+        # I want rays that when emitted onto an orthogonal wall make
+        # intersection points that are equally spaced along that wall. For
+        # this I need the tangens to compute the angles. This helps reduce
+        # distortion.
+        tan_max = math.tan(fov / 2)
+        for y in numpy.linspace(-tan_max, tan_max, n):
+            self.rays.append(Ray(self.x, self.y, self.heading, math.atan(y)))
 
     def handle_input(self, events, pressed, dt):
         if pressed[pg.K_w]:
@@ -52,7 +57,12 @@ class RayCaster:
             r.draw(target_surface)
 
     def draw_front_view(self, target_surface, surface_height, surface_half_height):
-        wall_color = (200, 200, 200)  # FIXME: Get this from each wall that is hit.
+        wall_color = (200, 200, 200)
+        # TODO: Get this from each wall that is hit.
+        # TODO: Make the wall darker the farther away it is. There must be an
+        #  easy way to manipulate the brightness in pygame apart from changing
+        #  the rgb values. Maybe use pygame.Color.hsva
+        # TODO: Fix the distortion. There was something about inverse square?
         for i, h in enumerate(self.hits):
             if h is not None and h <= self.max_view_distance:
                 h = (1 - h / self.max_view_distance) * surface_height
