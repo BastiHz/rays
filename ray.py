@@ -134,4 +134,4 @@ class Ray:
                     min_distance = u
                     self.wall_intersect = (intersect_x, intersect_y)
         if self.wall_intersect:
-            return min_distance
+            return min_distance * math.cos(self.relative_angle)
