@@ -27,26 +27,36 @@ class RayCaster:
 
     def handle_input(self, events, pressed, dt):
         if pressed[pg.K_w]:
-            self.move(dt, 1)
+            self.move(dt, 1, self.heading)
         if pressed[pg.K_s]:
-            self.move(dt, -1)
-        if pressed[pg.K_d]:
+            self.move(dt, -1, self.heading)
+        if pressed[pg.K_e]:
             self.turn(dt, 1)
-        if pressed[pg.K_a]:
+        if pressed[pg.K_q]:
             self.turn(dt, -1)
+        if pressed[pg.K_a]:
+            self.strafe(dt, -1)
+        if pressed[pg.K_d]:
+            self.strafe(dt, 1)
 
-    def move(self, sign, dt):
+    def move(self, dt, sign, angle):
         # positive sign means forward, negative backward
-        dx = math.cos(self.heading) * self.move_speed * dt * sign
-        dy = math.sin(self.heading) * self.move_speed * dt * sign
+        dx = math.cos(angle) * self.move_speed * dt * sign
+        dy = math.sin(angle) * self.move_speed * dt * sign
         for r in self.rays:
             r.move(dx, dy)
 
-    def turn(self, sign, dt):
+    def turn(self, dt, sign):
         # positive sign means right, negative means left
         self.heading += self.turn_speed * dt * sign
         for r in self.rays:
             r.rotate(self.heading)
+
+    def strafe(self, dt, sign):
+        # move sideways in relation to the view
+        # positive sign means right, negative means left
+        angle = self.heading + (math.pi / 2 * sign)
+        self.move(dt, 1, angle)
 
     def update(self, dt, walls):
         for i, r in enumerate(self.rays):
@@ -58,14 +68,15 @@ class RayCaster:
 
     def draw_front_view(self, target_surface, surface_height, surface_half_height):
         wall_color = (200, 200, 200)
-        # TODO: Get this from each wall that is hit.
+        # TODO: Get the color from each wall that is hit.
         # TODO: Make the wall darker the farther away it is. There must be an
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
-        # TODO: Fix the distortion. There was something about inverse square?
+        # FIXME: Understand how to fix the distortion properly. Maybe look at
+        #  the repo of thecodingtrain and see how the fans fixed it.
         for i, h in enumerate(self.hits):
             if h is not None and h <= self.max_view_distance:
-                h = (1 - h / self.max_view_distance) * surface_height
+                h = surface_height / h * 20
                 pg.draw.line(
                     target_surface,
                     wall_color,
