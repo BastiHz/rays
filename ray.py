@@ -67,19 +67,19 @@ class RayCaster:
             r.draw(target_surface)
 
     def draw_front_view(self, target_surface, surface_height, surface_half_height):
-        wall_color = (200, 200, 200)
         # TODO: Get the color from each wall that is hit.
         # TODO: Make the wall darker the farther away it is. There must be an
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
         # FIXME: Understand how to fix the distortion properly. Maybe look at
         #  the repo of thecodingtrain and see how the fans fixed it.
-        for i, h in enumerate(self.hits):
+        for i, hit in enumerate(self.hits):
+            h, color = hit
             if h is not None and h <= self.max_view_distance:
                 h = surface_height / h * 20
                 pg.draw.line(
                     target_surface,
-                    wall_color,
+                    color,
                     (i, surface_half_height - h / 2),
                     (i, surface_half_height + h / 2)
                 )
@@ -129,6 +129,7 @@ class Ray:
         # a distance of 123 pixels to the wall.
         self.wall_intersect = ()
         min_distance = math.inf
+        nearest_wall_color = None
         for w in walls:
             denominator = ((w.x1 - w.x2) * (self.y1 - self.y2)
                            - (w.y1 - w.y2) * (self.x1 - self.x2))
@@ -143,6 +144,8 @@ class Ray:
                 intersect_y = w.y1 + t * (w.y2 - w.y1)
                 if u < min_distance:
                     min_distance = u
+                    nearest_wall_color = w.color
                     self.wall_intersect = (intersect_x, intersect_y)
         if self.wall_intersect:
-            return min_distance * math.cos(self.relative_angle)
+            dist = min_distance * math.cos(self.relative_angle)
+            return dist, nearest_wall_color
