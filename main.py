@@ -49,7 +49,7 @@ class App:
         h = self.height - 1
         self.walls = [
             wall.Wall(0, 0, w, 0),  # top
-            wall.Wall(0, 0, 0, h),  # left
+            # wall.Wall(0, 0, 0, h),  # left
             wall.Wall(w, 0, w, h),  # right
             wall.Wall(0, h, w, h),  # bottom
             # cube:

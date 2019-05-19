@@ -13,6 +13,7 @@ class RayCaster:
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
         self.max_view_distance = 500
+        self.color = (255, 196, 0)
 
     def make_new_rays(self, fov, n):
         self.rays = []
@@ -45,6 +46,8 @@ class RayCaster:
         dy = math.sin(angle) * self.move_speed * dt * sign
         for r in self.rays:
             r.move(dx, dy)
+        self.x += dx
+        self.y += dy
 
     def turn(self, dt, sign):
         # positive sign means right, negative means left
@@ -63,20 +66,21 @@ class RayCaster:
             self.hits[i] = r.cast(walls)
 
     def draw_top_view(self, target_surface):
+        pg.draw.circle(target_surface, self.color, (int(self.x), int(self.y)), 3)
         for r in self.rays:
             r.draw(target_surface)
 
     def draw_front_view(self, target_surface, surface_height, surface_half_height):
-        # TODO: Get the color from each wall that is hit.
         # TODO: Make the wall darker the farther away it is. There must be an
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
         # FIXME: Understand how to fix the distortion properly. Maybe look at
         #  the repo of thecodingtrain and see how the fans fixed it.
+        #  The distances are still wrong.
         for i, hit in enumerate(self.hits):
-            h, color = hit
-            if h is not None and h <= self.max_view_distance:
-                h = surface_height / h * 20
+            if hit is not None and hit[0] <= self.max_view_distance:
+                dist, color = hit
+                h = surface_height / dist * 20
                 pg.draw.line(
                     target_surface,
                     color,
