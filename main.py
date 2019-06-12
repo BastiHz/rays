@@ -29,6 +29,7 @@ import wall
 
 class App:
     def __init__(self):
+        pg.init()
         width = 800
         self.height = 400
         os.environ["SDL_VIDEO_CENTERED"] = "1"
