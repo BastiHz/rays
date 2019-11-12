@@ -20,8 +20,7 @@ class RayCaster:
         self.hits = [None] * n
         # I want rays that when emitted onto an orthogonal wall make
         # intersection points that are equally spaced along that wall. For
-        # this I need the tangens to compute the angles. This helps reduce
-        # distortion.
+        # this I need tan() to compute the angles. This reduces distortion.
         tan_max = math.tan(fov / 2)
         for y in numpy.linspace(-tan_max, tan_max, n):
             self.rays.append(Ray(self.x, self.y, self.heading, math.atan(y)))
