@@ -1,5 +1,5 @@
 import math
-import numpy
+import numpy  # FIXME: don't depend on numpy for only that one function
 import pygame as pg
 
 
