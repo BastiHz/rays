@@ -143,6 +143,8 @@ class Ray:
             u = -((w.x1 - w.x2) * (w.y1 - self.y1)
                   - (w.y1 - w.y2) * (w.x1 - self.x1)) / denominator
             if 0 <= t <= 1 and u > 0:
+                # FIXME: Put the calculation of intersect inside the if block
+                # because it is unnecessary if u >= min_distance.
                 intersect_x = w.x1 + t * (w.x2 - w.x1)
                 intersect_y = w.y1 + t * (w.y2 - w.y1)
                 if u < min_distance:
