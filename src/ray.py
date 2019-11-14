@@ -83,9 +83,6 @@ class RayCaster:
         # TODO: Make the wall darker the farther away it is. There must be an
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
-        # FIXME: Understand how to fix the distortion properly. Maybe look at
-        #  the repo of thecodingtrain and see how the fans fixed it.
-        #  The distances are still wrong.
         for i, hit in enumerate(self.hits):
             if hit is not None and hit[0] <= self.max_view_distance:
                 dist, color = hit
@@ -135,9 +132,6 @@ class Ray:
     def cast(self, walls):
         # Algorithm taken from https://www.youtube.com/watch?v=-6iIc6-Y-kk
         # which references https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-        # I check t with 0 <= t <= 1 like it says in wikipedia,
-        # however thecodingtrain only uses '<' in the video.
-        # I don't believe it matters much.
         #
         # As far as I understand 'u' is the distance to the intersect in units
         # of ray length. So if the ray is 1 pixel long then a 'u' of 123 means
