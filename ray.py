@@ -87,7 +87,7 @@ class RayCaster:
         for i, hit in enumerate(self.hits):
             if hit is not None and hit[0] <= self.max_view_distance:
                 dist, color = hit
-                h = surface_height / dist * 20
+                h = surface_height / dist * 30  # that right number maybe is the wall height?
                 pg.draw.line(
                     target_surface,
                     color,

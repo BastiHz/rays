@@ -43,7 +43,7 @@ class App:
         self.background_color = (20, 20, 20)
 
         self.raycaster = ray.RayCaster(self.half_width // 2, self.half_height, 0)
-        self.raycaster.make_new_rays(math.pi/2, self.half_width)
+        self.raycaster.make_new_rays(math.radians(60), self.half_width)
 
         # -1 because otherwise w and h are off screen:
         w = self.half_width - 1
