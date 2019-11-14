@@ -47,8 +47,10 @@ class RayCaster:
         if pressed[pg.K_d]:
             self.strafe(dt, 1)
 
-    def move(self, dt, sign, angle):
+    def move(self, dt, sign, angle=None):
         # positive sign means forward, negative backward
+        if angle is None:
+            angle = self.heading
         dx = math.cos(angle) * self.move_speed * dt * sign
         dy = math.sin(angle) * self.move_speed * dt * sign
         for r in self.rays:

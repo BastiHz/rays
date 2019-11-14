@@ -1,0 +1,8 @@
+{
+    "app": {
+        "window_width": 800,
+        "window_height": 600,
+        "fps": 60,
+        "start_state": "MainGame"
+    }
+}
