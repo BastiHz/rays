@@ -16,8 +16,8 @@ class RayCaster:
         self.color = (255, 196, 0)
 
     def make_new_rays(self, fov, n):
-        self.rays = []
-        self.hits = [None] * n
+        self.hits = [None]*n
+        self.rays = [None]*n
         # I want rays that when emitted onto an orthogonal wall make
         # intersection points that are equally spaced along that wall. For
         # this I need tan() to compute the angles. This reduces distortion.
@@ -26,12 +26,12 @@ class RayCaster:
         b = tan_max
         step = (b - a) / (n - 1)
         for i in range(n):
-            self.rays.append(Ray(
+            self.rays[i] = Ray(
                 self.x, 
                 self.y, 
                 self.heading, 
                 math.atan(a + step * i)
-            ))
+            )
 
     def handle_input(self, events, pressed, dt):
         if pressed[pg.K_w]:
