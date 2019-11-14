@@ -1,5 +1,5 @@
 import math
-import numpy  # FIXME: don't depend on numpy for only that one function
+
 import pygame as pg
 
 
@@ -22,8 +22,16 @@ class RayCaster:
         # intersection points that are equally spaced along that wall. For
         # this I need tan() to compute the angles. This reduces distortion.
         tan_max = math.tan(fov / 2)
-        for y in numpy.linspace(-tan_max, tan_max, n):
-            self.rays.append(Ray(self.x, self.y, self.heading, math.atan(y)))
+        a = -tan_max
+        b = tan_max
+        step = (b - a) / (n - 1)
+        for i in range(n):
+            self.rays.append(Ray(
+                self.x, 
+                self.y, 
+                self.heading, 
+                math.atan(a + step * i)
+            ))
 
     def handle_input(self, events, pressed, dt):
         if pressed[pg.K_w]:
