@@ -108,7 +108,9 @@ class Ray:
         self.x2 = self.x1 + math.cos(angle)
         self.y2 = self.y1 + math.sin(angle)
         self.color = (255, 196, 0)
-        self.wall_intersect = []
+        self.wall_intersect = False
+        self.intersect_x = 0
+        self.intersect_y = 0
 
     def move(self, dist_x, dist_y):
         self.x1 += dist_x
@@ -127,7 +129,7 @@ class Ray:
                 target_surf,
                 self.color,
                 (self.x1, self.y1),
-                self.wall_intersect
+                (self.intersect_x, self.intersect_y)
             )
 
     def cast(self, walls):
@@ -140,7 +142,7 @@ class Ray:
         # As far as I understand 'u' is the distance to the intersect in units
         # of ray length. So if the ray is 1 pixel long then a 'u' of 123 means
         # a distance of 123 pixels to the wall.
-        self.wall_intersect = ()
+        self.wall_intersect = False
         min_distance = math.inf
         nearest_wall_color = None
         for w in walls:
@@ -150,17 +152,17 @@ class Ray:
                 continue
             t = (((w.x1 - self.x1) * (self.y1 - self.y2)
                   - (w.y1 - self.y1) * (self.x1 - self.x2)) / denominator)
+            if t < 0 or t > 1:
+                continue
             u = -((w.x1 - w.x2) * (w.y1 - self.y1)
                   - (w.y1 - w.y2) * (w.x1 - self.x1)) / denominator
-            if 0 <= t <= 1 and u > 0:
-                # FIXME: Put the calculation of intersect inside the if block
-                # because it is unnecessary if u >= min_distance.
-                intersect_x = w.x1 + t * (w.x2 - w.x1)
-                intersect_y = w.y1 + t * (w.y2 - w.y1)
-                if u < min_distance:
-                    min_distance = u
-                    nearest_wall_color = w.color
-                    self.wall_intersect = (intersect_x, intersect_y)
+            if u <= 0 or u >= min_distance:
+                continue
+            min_distance = u
+            self.wall_intersect = True
+            self.intersect_x = w.x1 + t * (w.x2 - w.x1)
+            self.intersect_y = w.y1 + t * (w.y2 - w.y1)
+            nearest_wall_color = w.color
         if self.wall_intersect:
             dist = min_distance * math.cos(self.relative_angle)
             return dist, nearest_wall_color
