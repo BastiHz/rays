@@ -15,7 +15,7 @@ class Main(State):
         self.raycaster = src.ray.RayCaster(
             self.rect.width // 2,
             self.rect.height // 2,
-            0
+            math.pi
         )
         self.raycaster.make_new_rays(math.radians(60), self.rect.width)
 
@@ -45,6 +45,10 @@ class Main(State):
     def start(self, data):
         super().start(data)
         pg.mouse.set_visible(False)
+
+    def close(self):
+        pg.mouse.set_visible(True)
+        return super().close()
 
     def process_events(self, events, pressed, dt):
         for e in events:
