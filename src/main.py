@@ -40,4 +40,4 @@ def run():
             state.start(state_data)
         state.update(dt)
         state.draw(window)
-        pg.display.update()
+        pg.display.flip()
