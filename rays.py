@@ -4,6 +4,5 @@ MIT license, see file LICENSE for details
 """
 
 
-if __name__ == "__main__":
-    import src.main
-    src.main.run()
+import src.main
+src.main.run()
