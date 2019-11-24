@@ -78,19 +78,19 @@ class RayCaster:
         for r in self.rays:
             r.draw(target_surface)
 
-    def draw_front_view(self, target_surface, surface_height, surface_half_height):
+    def draw_front_view(self, target_surface, surface_half_height):
         # TODO: Make the wall darker the farther away it is. There must be an
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
         for i, hit in enumerate(self.hits):
             if hit is not None:
                 dist, color = hit
-                h = surface_height / dist * 30  # that right number maybe is the wall height?
+                h = surface_half_height / dist * 30  # that right number maybe is the wall height?
                 pg.draw.line(
                     target_surface,
                     color,
-                    (i, surface_half_height - h / 2),
-                    (i, surface_half_height + h / 2)
+                    (i, surface_half_height - h),
+                    (i, surface_half_height + h)
                 )
 
 

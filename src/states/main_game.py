@@ -74,4 +74,4 @@ class Main(State):
 
     def draw(self, window):
         window.fill(self.background_color)
-        self.raycaster.draw_front_view(window, self.rect.height, self.rect.height//2)
+        self.raycaster.draw_front_view(window, self.rect.height // 2)
