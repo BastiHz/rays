@@ -60,6 +60,7 @@ class RayCaster:
     def turn(self, dt, sign):
         # positive sign means right, negative means left
         self.heading += self.turn_speed * dt * sign
+        self.heading = self.heading % math.tau
         for r in self.rays:
             r.rotate(self.heading)
 
