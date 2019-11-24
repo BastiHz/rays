@@ -26,25 +26,11 @@ class RayCaster:
         step = (b - a) / (n - 1)
         for i in range(n):
             self.rays[i] = Ray(
-                self.x, 
-                self.y, 
-                self.heading, 
+                self.x,
+                self.y,
+                self.heading,
                 math.atan(a + step * i)
             )
-
-    def handle_input(self, events, pressed, dt):
-        if pressed[pg.K_w]:
-            self.move(dt, 1, self.heading)
-        if pressed[pg.K_s]:
-            self.move(dt, -1, self.heading)
-        if pressed[pg.K_e]:
-            self.turn(dt, 1)
-        if pressed[pg.K_q]:
-            self.turn(dt, -1)
-        if pressed[pg.K_a]:
-            self.strafe(dt, -1)
-        if pressed[pg.K_d]:
-            self.strafe(dt, 1)
 
     def move(self, dt, sign, angle=None):
         # positive sign means forward, negative backward
