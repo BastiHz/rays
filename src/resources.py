@@ -22,5 +22,20 @@ def load_sounds():
     pass
 
 
+def load_levels():
+    pass
+
+
 def define_fonts():
     pass
+
+
+def load_data():
+    data = {
+        "config": load_config(),
+        "images": load_images(),
+        "sounds": load_sounds(),
+        "levels": load_levels(),
+        "fonts": define_fonts()
+    }
+    return data

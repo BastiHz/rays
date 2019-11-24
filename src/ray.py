@@ -4,22 +4,25 @@ import pygame as pg
 
 
 class RayCaster:
-    def __init__(self, x, y, heading):
+    def __init__(self, x, y, heading, data):
         self.x = x
         self.y = y
         self.heading = heading
-        self.move_speed = 50  # px/s
-        self.turn_speed = math.pi / 2  # rad/s
+        self.config = data["config"]["RayCaster"]
+        self.move_speed = self.config["move_speed"]  # px/s
+        self.turn_speed = math.radians(self.config["turn_speed_degrees"])  # rad/s
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
-        self.color = (255, 196, 0)
+        self.color = self.config["color"]
+        self.wall_height = self.config["wall_height"]
 
-    def make_new_rays(self, fov, n):
+    def make_new_rays(self, n):
         self.hits = [None]*n
         self.rays = [None]*n
         # I want rays that when emitted onto an orthogonal wall make
         # intersection points that are equally spaced along that wall. For
         # this I need tan() to compute the angles. This reduces distortion.
+        fov = math.radians(self.config["fov_degrees"])
         tan_max = math.tan(fov / 2)
         a = -tan_max
         b = tan_max
@@ -72,7 +75,7 @@ class RayCaster:
         for i, hit in enumerate(self.hits):
             if hit is not None:
                 dist, color = hit
-                h = surface_half_height / dist * 30  # that right number maybe is the wall height?
+                h = surface_half_height / dist * self.wall_height
                 pg.draw.line(
                     target_surface,
                     color,

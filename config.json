@@ -1,8 +1,14 @@
 {
-    "app": {
-        "window_width": 800,
-        "window_height": 600,
-        "fps": 60,
-        "start_state": "MainGame"
+    "window_width": 800,
+    "window_height": 600,
+    "fps": 60,
+    "start_state": "MainGame",
+    "background_color": [20, 20, 20],
+    "RayCaster": {
+        "move_speed": 50,
+        "turn_speed_degrees": 90,
+        "color": [255, 196, 0],
+        "fov_degrees": 60,
+        "wall_height": 30
     }
 }

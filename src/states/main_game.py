@@ -11,13 +11,14 @@ class Main(State):
     def __init__(self, data):
         super().__init__(data)
         self.rect = pg.display.get_surface().get_rect()
-        self.background_color = (20, 20, 20)
+        self.background_color = data["config"]["background_color"]
         self.raycaster = src.ray.RayCaster(
             self.rect.width // 2,
             self.rect.height // 2,
-            math.pi
+            math.pi,
+            data
         )
-        self.raycaster.make_new_rays(math.radians(60), self.rect.width)
+        self.raycaster.make_new_rays(self.rect.width)
 
         self.walls = [
             src.wall.Wall(0, 0, 800, 0),  # top

@@ -11,20 +11,19 @@ import src.states.main_game
 def run():
     os.environ["SDL_VIDEO_CENTERED"] = "1"
     pg.init()
-    config = src.resources.load_config()
+    data = src.resources.load_data()
     window = pg.display.set_mode((
-        config["app"]["window_width"],
-        config["app"]["window_height"]
+        data["config"]["window_width"],
+        data["config"]["window_height"]
     ))
 
-    data = {"config": config}
     states = {
         "MainGame": src.states.main_game.Main(data),
     }
-    state = states[config["app"]["start_state"]]
+    state = states[data["config"]["start_state"]]
     state.start({})
 
-    fps = config["app"]["fps"]
+    fps = data["config"]["fps"]
     clock = pg.time.Clock()
     while True:
         dt = clock.tick(fps) / 1000
