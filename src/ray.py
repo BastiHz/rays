@@ -10,7 +10,8 @@ class RayCaster:
         self.heading = heading
         self.config = data["config"]["RayCaster"]
         self.move_speed = self.config["move_speed"]  # px/s
-        self.turn_speed = math.radians(self.config["turn_speed_degrees"])  # rad/s
+        self.turn_speed = math.radians(self.config["turn_speed_degrees"])
+        self.mouse_turn_sensitivity = self.config["mouse_turn_sensitivity"]
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
         self.color = self.config["color"]
@@ -46,10 +47,18 @@ class RayCaster:
         self.x += dx
         self.y += dy
 
-    def turn(self, dt, sign):
+    def turn_mouse(self, mouse_rel):
+        # FIXME: Make the mouse sensitivity some sensible value. Maybe
+        #   a mouse_rel value of +100 turns 90 degrees to the right when the
+        #   sensitivity is one? And double the angle when the sensitivity is 2?
+        self.turn(self.heading + mouse_rel * self.mouse_turn_sensitivity)
+
+    def turn_keyboard(self, dt, sign):
         # positive sign means right, negative means left
-        self.heading += self.turn_speed * dt * sign
-        self.heading = self.heading % math.tau
+        self.turn(self.heading + self.turn_speed * dt * sign)
+
+    def turn(self, new_heading):
+        self.heading = new_heading % math.tau
         for r in self.rays:
             r.rotate(self.heading)
 

@@ -7,6 +7,7 @@
     "RayCaster": {
         "move_speed": 50,
         "turn_speed_degrees": 90,
+        "mouse_turn_sensitivity": 0.003,
         "color": [255, 196, 0],
         "fov_degrees": 60,
         "wall_height": 30

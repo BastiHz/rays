@@ -45,10 +45,16 @@ class Main(State):
 
     def start(self, data):
         super().start(data)
+
+        # lock the mouse to the pygame window:
         pg.mouse.set_visible(False)
+        pg.event.set_grab(True)
 
     def close(self):
+        # release the mouse from the pygame window:
         pg.mouse.set_visible(True)
+        pg.event.set_grab(False)
+
         return super().close()
 
     def process_events(self, events, pressed, dt):
@@ -57,14 +63,16 @@ class Main(State):
                 if e.key == pg.K_ESCAPE:
                     self.done = True
                     return
+            if e.type == pg.MOUSEMOTION:
+                self.raycaster.turn_mouse(e.rel[0])
         if pressed[pg.K_w]:
             self.raycaster.move(dt, 1)
         if pressed[pg.K_s]:
             self.raycaster.move(dt, -1)
         if pressed[pg.K_e]:
-            self.raycaster.turn(dt, 1)
+            self.raycaster.turn_keyboard(dt, 1)
         if pressed[pg.K_q]:
-            self.raycaster.turn(dt, -1)
+            self.raycaster.turn_keyboard(dt, -1)
         if pressed[pg.K_a]:
             self.raycaster.strafe(dt, -1)
         if pressed[pg.K_d]:
