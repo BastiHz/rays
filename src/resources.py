@@ -6,6 +6,7 @@ load and save savegames etc
 """
 
 import json
+import os
 
 
 def load_config():
@@ -22,8 +23,14 @@ def load_sounds():
     pass
 
 
-def load_levels():
-    pass
+def load_worlds():
+    worlds = {}
+    worlds_dir = "worlds"
+    for filename in os.listdir(worlds_dir):
+        world_name = os.path.splitext(filename)[0]
+        with open(os.path.join(worlds_dir, filename), "r") as file:
+            worlds[world_name] = json.load(file)
+    return worlds
 
 
 def define_fonts():
@@ -35,7 +42,7 @@ def load_data():
         "config": load_config(),
         "images": load_images(),
         "sounds": load_sounds(),
-        "levels": load_levels(),
+        "worlds": load_worlds(),
         "fonts": define_fonts()
     }
     return data

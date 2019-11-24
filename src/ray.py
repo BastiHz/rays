@@ -4,11 +4,11 @@ import pygame as pg
 
 
 class RayCaster:
-    def __init__(self, x, y, heading, data):
-        self.x = x
-        self.y = y
-        self.heading = heading
-        self.config = data["config"]["RayCaster"]
+    def __init__(self, world, raycaster_data):
+        self.x = world["camera_x"]
+        self.y = world["camera_y"]
+        self.heading = math.radians(world["camera_heading_degrees"])
+        self.config = raycaster_data
         self.move_speed = self.config["move_speed"]  # px/s
         self.turn_speed = math.radians(self.config["turn_speed_degrees"])
         self.mouse_turn_sensitivity = self.config["mouse_turn_sensitivity"]
