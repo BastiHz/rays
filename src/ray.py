@@ -12,7 +12,6 @@ class RayCaster:
         self.turn_speed = math.pi / 2  # rad/s
         self.rays = []
         self.hits = []  # stores the distances to the walls or None if a ray didn't hit a wall
-        self.max_view_distance = 500
         self.color = (255, 196, 0)
 
     def make_new_rays(self, fov, n):
@@ -84,7 +83,7 @@ class RayCaster:
         #  easy way to manipulate the brightness in pygame apart from changing
         #  the rgb values. Maybe use pygame.Color.hsva
         for i, hit in enumerate(self.hits):
-            if hit is not None and hit[0] <= self.max_view_distance:
+            if hit is not None:
                 dist, color = hit
                 h = surface_height / dist * 30  # that right number maybe is the wall height?
                 pg.draw.line(
