@@ -6,3 +6,4 @@
 * https://stackoverflow.com/questions/24173966/raycasting-engine-rendering-creating-slight-distortion-increasing-towards-edges
 * https://stackoverflow.com/questions/47239797/ray-casting-with-different-height-size
 * https://stackoverflow.com/questions/32716685/algorithm-for-2d-raytracer/32733650#32733650
+* https://www.youtube.com/watch?v=gYRrGTC7GtA
