@@ -3,6 +3,7 @@ import os
 
 import pygame
 import pygame.freetype
+import numpy
 
 from src.constants import DEFAULT_OPTIONS
 
@@ -19,7 +20,13 @@ def load_images():
 
 
 def load_worlds():
-    pass
+    for filename in os.listdir("worlds"):
+        with open(os.path.join("worlds", filename), "r") as file:
+            world_data = json.load(file)
+            world_name = world_data["name"]
+            world_map = numpy.asarray(world_data["map"])
+            assert numpy.issubdtype(world_map.dtype, numpy.integer)
+            worlds[world_name] = world_map
 
 
 def load_options():
@@ -44,7 +51,7 @@ def load_controls():
 def load_fonts():
     dev_font = pygame.freetype.Font(
         os.path.join("fonts", "Inconsolata-VariableFont.ttf"),
-        18
+        16
     )
     dev_font.fgcolor = (255, 255, 255)
     dev_font.pad = True

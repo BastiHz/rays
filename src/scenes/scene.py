@@ -45,8 +45,8 @@ class DevOverlay:
         self.font = fonts["dev_font"]
         self.text_margin = pygame.Vector2(5, 5)
         self.fps = -1
-        self.fps_surf = None
-        self.fps_rect = None
+        self.fps_surf, self.fps_rect = self.font.render(f"FPS: {self.fps}")
+        self.fps_rect.topleft = self.text_margin
 
     def update(self):
         fps = int(self.scene_manager.clock.get_fps())
