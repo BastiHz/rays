@@ -1,0 +1,9 @@
+{
+    "controls": {
+        "move backward": "s",
+        "move forward": "w",
+        "toggle dev overlay": "f1",
+        "turn left": "a",
+        "turn right": "d"
+    }
+}
