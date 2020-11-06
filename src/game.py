@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 import pygame
 
 from src.constants import *
@@ -6,7 +8,7 @@ from src.scenes import SCENES
 
 
 class Game:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.main_display = pygame.display.set_mode(MAIN_DISPLAY_SIZE)
         self.small_display = pygame.Surface(SMALL_DISPLAY_SIZE)
@@ -15,10 +17,10 @@ class Game:
         self.running = True
         self.scene = SCENES["main game"](self)
         self.scene.start()
-        self.persistent_scene_data = {}
+        self.persistent_scene_data: Dict[str, Any] = {}
         self.dev_overlay_visible = True
 
-    def run(self):
+    def run(self) -> None:
         while self.running:
             # delta time of previous tick in seconds.
             # Protect against hiccups (e.g. from moving the pygame window)
@@ -44,14 +46,16 @@ class Game:
             if self.scene.is_done:
                 self.change_scene()
 
-    def change_scene(self):
-        next_scene_name = self.persistent_scene_data["next_scene_name"]
-        if not next_scene_name:
+    def change_scene(self) -> None:
+        # TODO: Add possibility to resume an already instantiated scene.
+        next_scene_name = self.persistent_scene_data["next scene name"]
+        if next_scene_name:
+            self.scene = SCENES[next_scene_name](self)
+            self.scene.start()
+        else:
             self.quit()
-        self.scene = SCENES[next_scene_name]
-        self.scene.start()
 
-    def quit(self):
+    def quit(self) -> None:
         # TODO: If there are unsaved changes, ask if they should be
         #  saved, discarded or if the exit should be canceled. That
         #  popup will be its own scene. And that one may then exit the game.
