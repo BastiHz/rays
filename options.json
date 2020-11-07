@@ -1,6 +1,8 @@
 {
     "camera": {
-        "fov_degrees": 90
+        "fov_degrees": 90,
+        "move_speed": 5,
+        "rotate_speed": 3
     },
     "controls": {
         "move backward": "s",

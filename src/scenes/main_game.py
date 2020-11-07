@@ -1,6 +1,6 @@
 import pygame
 
-from src.constants import BACKGROUND_COLOR, SMALL_DISPLAY_WIDTH
+from src.constants import *
 from src.resources import controls, worlds
 from src.scenes.scene import Scene, DevOverlay
 from src import camera
@@ -15,16 +15,26 @@ class MainGame(Scene):
         self.line_tops = []
         self.line_bottoms = []
         self.line_colors = []
+        self.move_straight_sign = 0  # 1 is forward, -1 is backward
 
     def process_event(self, event):
         super().process_event(event)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.close()
+            elif event.key == controls[MOVE_FORWARD]:
+                self.move_straight_sign = 1
+            elif event.key == controls[MOVE_BACKWARD]:
+                self.move_straight_sign = -1
+        elif event.type == pygame.KEYUP:
+            if event.key in (controls[MOVE_FORWARD], controls[MOVE_BACKWARD]):
+                self.move_straight_sign = 0
         # elif event.type == pygame.ACTIVEEVENT:
         #     print(event.gain)
 
     def update(self, dt):
+        if self.move_straight_sign != 0:
+            self.camera.move_staight(self.move_straight_sign, dt)
         self.line_tops, self.line_bottoms, self.line_colors = self.camera.cast_rays()
 
     def draw(self):

@@ -32,16 +32,11 @@ class Game:
             self.scene.update(dt)
             self.scene.draw()
 
-            # Try it first at full resolution and then reduce the size of
-            # the small_display when the fps drops below 60.
-            if MAGNIFICATION > 1:
-                pygame.transform.scale(
-                    self.small_display,
-                    MAIN_DISPLAY_SIZE,
-                    self.main_display
-                )
-            else:
-                self.main_display.blit(self.small_display, (0, 0))
+            pygame.transform.scale(
+                self.small_display,
+                MAIN_DISPLAY_SIZE,
+                self.main_display
+            )
 
             if self.dev_overlay_visible:
                 self.scene.dev_overlay.update()
