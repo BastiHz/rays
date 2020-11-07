@@ -1,4 +1,7 @@
 {
+    "camera": {
+        "fov_degrees": 90
+    },
     "controls": {
         "move backward": "s",
         "move forward": "w",
