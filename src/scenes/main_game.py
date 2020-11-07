@@ -3,13 +3,17 @@ import pygame
 from src.constants import *
 from src.resources import controls, worlds
 from src.scenes.scene import Scene, DevOverlay
+from src import camera
 
 
 class MainGame(Scene):
     def __init__(self, scene_manager, world_name):
+        self.world = worlds[world_name]
         self.world_name = world_name
-        self.world_map = worlds[world_name]
+        self.world_map = self.world["map"]
+        print(self.world_map.shape)
         super().__init__(scene_manager, MainGameDevOverlay)
+        self.camera = camera.Camera(self.world)
 
     def update(self, dt):
         pass

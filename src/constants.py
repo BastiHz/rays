@@ -23,3 +23,5 @@ DEFAULT_OPTIONS = {
         TOGGLE_DEV_OVERLAY: "f1"
     }
 }
+
+FOV = 90  # degrees
