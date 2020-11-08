@@ -85,17 +85,13 @@ class MainGame(Scene):
 
     def draw(self):
         self.target_surface.fill(BACKGROUND_COLOR)
-        for x in range(SMALL_DISPLAY_WIDTH):
+        for x in range(DISPLAY_WIDTH):
             pygame.draw.line(
                 self.target_surface,
                 self.line_colors[x],
                 (x, self.line_tops[x]),
                 (x, self.line_bottoms[x])
             )
-
-        # DEBUG:
-        pygame.draw.circle(self.target_surface, (255, 0, 255),
-                           self.mouse_position, 5)
 
 
 class MainGameDevOverlay(DevOverlay):

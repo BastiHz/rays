@@ -1,10 +1,8 @@
-import math
-
 import pygame
 import numpy
 
 
-from src.constants import SMALL_DISPLAY_WIDTH, SMALL_DISPLAY_HEIGHT
+from src.constants import *
 from src.resources import options
 
 
@@ -21,9 +19,9 @@ class Camera:
         self.camera_plane = self.view_direction.rotate(90)
         self.camera_plane.scale_to_length(camera_plane_half_len)
 
-        n_rays = SMALL_DISPLAY_WIDTH
-        self.screen_height_half = SMALL_DISPLAY_HEIGHT / 2
-        self.screen_bottom = SMALL_DISPLAY_HEIGHT - 1
+        n_rays = DISPLAY_WIDTH
+        self.screen_height_half = DISPLAY_HEIGHT / 2
+        self.screen_bottom = DISPLAY_HEIGHT - 1
         # camera_x is the x-coordinate on the camera plane which maps to
         # an x-coordinate on the screen. The left edge is -1 and the
         # right edge is +1.

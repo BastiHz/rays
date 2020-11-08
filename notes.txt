@@ -12,5 +12,37 @@
 Ob die Blöcke quadratisch aussehen, ist abhängig vom Seitenverhältnis
 des Fensters, vom FOV und dem Wert von h in dieser Zeile:
 line_height_half = h / wall_distance
-Was funktioniert ist ein Seitenverhältnis von 4:3, ein FOV und ein h von
+Was funktioniert ist ein Seitenverhältnis von 4:3, ein FOV von 66° und ein h von
 der halben Fensterhöhe (screen_height_half).
+
+
+Vsync ist schwierig in Pygame 2.0. Ich bekomme kein vsync ohne die SCALED flag
+zu nutzen. Aber mit SCALED habe ich keine Kontroll über die Fenstergröße.
+Daher nutze ich jetzt einfach ein großes Fenster, das dann nicht skaliert wird.
+Die Frameate leided momentan noch nicht darunter, was beeindruckend ist bei
+einer Breite von 1200 und daher 1200 rays. Falls ich später die Anzahl der
+Strahlen verringern will, kann ich ja Rechtecke Zeichnen statt Linien. Und
+wenn es dann Wände mit Texturen gibt, kann ich die Texturausschnitte
+hochskalieren. Hoffentlich läuft das schnell genug.
+
+Siehe diese Antwort auf Reddit:
+https://www.reddit.com/r/pygame/comments/jp48ta/question_about_scaled_flag_and_vsync/gbdd953/
+The reason you can only set vsync with pygame.SCALED because it uses the new
+renderer. In sdl2 you can only request vsync if you have a renderer and not on
+the old type surfaces (as far as i know).
+And no i dont think there is a way to control the actual size of the window.
+You may get the window size using get_window_size (its not guaranteed to return
+the exact size but i had the most success with this):
+expected_size = pygame.display.get_window_size()
+Hope this helped
+
+Und diese Antwort auf Github:
+https://github.com/pygame/pygame/issues/735#issuecomment-723597179
+For technical reasons and because of the nature of vsync, vsync only works when
+using the GPU. In PyGame, this means using OpenGL with pygame.OPENGL, using the
+SDL2 renderer (with OpenGL, DirectX, or Metal backends) via pygame._sdl2, or
+using pygame.SCALED, which uses the SDL2 renderer internally to render the
+display surface.
+It would be possible to create another mode for pygame.display.set_mode that
+always uses the GPU, but doesn't do any automatic scaling, but for backwards
+compatibility reasons, we can't use a GPU by default.

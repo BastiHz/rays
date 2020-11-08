@@ -1,13 +1,13 @@
 import pygame
 
-from src.constants import *
+from src import constants
 from src.resources import controls, fonts
 
 
 class Scene:
     def __init__(self, scene_manager, dev_overlay):
         self.scene_manager = scene_manager
-        self.target_surface = scene_manager.small_display
+        self.target_surface = scene_manager.main_display
         if dev_overlay is None:
             self.dev_overlay = DevOverlay(self)
         else:
@@ -27,15 +27,12 @@ class Scene:
         if event.type == pygame.QUIT:
             self.close()
         if (event.type == pygame.KEYDOWN and
-                event.key == controls[TOGGLE_DEV_OVERLAY]):
+                event.key == controls[constants.TOGGLE_DEV_OVERLAY]):
             self.scene_manager.dev_overlay_visible = \
                 not self.scene_manager.dev_overlay_visible
         elif event.type == pygame.MOUSEMOTION:
-            event.pos = scale_mouse(event.pos)
-            event.rel = scale_mouse(event.rel)
             self.mouse_position = event.pos
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            event.pos = scale_mouse(event.pos)
             self.mouse_position = event.pos
 
     def update(self, dt):
@@ -43,13 +40,6 @@ class Scene:
 
     def draw(self):
         raise NotImplementedError
-
-
-def scale_mouse(pos_or_rel):
-    return (
-        pos_or_rel[0] / DISPLAY_MAGNIFICATION,
-        pos_or_rel[1] / DISPLAY_MAGNIFICATION
-    )
 
 
 class DevOverlay:

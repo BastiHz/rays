@@ -5,7 +5,7 @@ import pygame
 import pygame.freetype
 import numpy
 
-from src.constants import DEFAULT_OPTIONS
+from src.constants import *
 
 
 images = {}
@@ -54,6 +54,7 @@ def load_fonts():
         16
     )
     dev_font.fgcolor = (255, 255, 255)
+    dev_font.bgcolor = BACKGROUND_COLOR
     dev_font.pad = True
     fonts.update({"dev_font": dev_font})
 
