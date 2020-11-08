@@ -33,6 +33,11 @@ class Camera:
         self.dark_colors = [[c // 2 for c in color] for color in self.colors]
         self.move_speed = camera_options["move_speed"]  # squares / s
         self.rotate_speed = camera_options["rotate_speed"]  # radians / s
+        self.move_forward_velocity = self.view_direction * self.move_speed
+        self.move_right_velocity = pygame.Vector2(  # negate this for moving left
+            self.view_direction.y,
+            self.view_direction.x
+        ) * self.move_speed
 
     def cast_rays(self):
         # # https://lodev.org/cgtutor/raycasting.html
@@ -101,12 +106,15 @@ class Camera:
 
     def move_staight(self, sign, dt):
         # positive sign is forward, negative is backward
-        new_x, new_y = self.position + self.view_direction * self.move_speed * dt * sign
+        new_x, new_y = self.position + self.move_forward_velocity * sign * dt
         if self.world_map[int(new_y), int(new_x)] == 0:
             self.position.update(new_x, new_y)
 
     def move_sideways(self, sign, dt):
-        pass
+        # positive sign is right, negative is left
+        new_x, new_y = self.position + self.move_right_velocity * sign * dt
+        if self.world_map[int(new_y), int(new_x)] == 0:
+            self.position.update(new_x, new_y)
 
     def turn(self, sign, dt):
         # positive sign is right, negative is left
@@ -116,6 +124,8 @@ class Camera:
         angle = self.rotate_speed * dt * sign
         self.view_direction.rotate_ip_rad(angle)
         self.camera_plane.rotate_ip_rad(angle)
+        self.move_forward_velocity.rotate_ip_rad(angle)
+        self.move_right_velocity.rotate_ip_rad(angle)
 
     @staticmethod
     def save_division(x, y):
