@@ -1,48 +1,66 @@
-"""Manage resources:
-load default config
-save user defined config (if applicable)
-load images, sounds, levels, etc.
-load and save savegames etc
-"""
-
 import json
 import os
 
+import pygame
+import pygame.freetype
+import numpy
 
-def load_config():
-    with open("config.json", "r") as file:
-        config = json.load(file)
-    return config
+from src.constants import DEFAULT_OPTIONS
+
+
+images = {}
+worlds = {}
+options = {}
+controls = {}
+fonts = {}
 
 
 def load_images():
     pass
 
 
-def load_sounds():
-    pass
-
-
 def load_worlds():
-    worlds = {}
-    worlds_dir = "worlds"
-    for filename in os.listdir(worlds_dir):
-        world_name = os.path.splitext(filename)[0]
-        with open(os.path.join(worlds_dir, filename), "r") as file:
-            worlds[world_name] = json.load(file)
-    return worlds
+    for filename in os.listdir("worlds"):
+        with open(os.path.join("worlds", filename), "r") as file:
+            world_data = json.load(file)
+            world_name = world_data["name"]
+            world_data["map"] = numpy.asarray(world_data["map"])
+            assert numpy.issubdtype(world_data["map"].dtype, numpy.integer)
+            worlds[world_name] = world_data
 
 
-def define_fonts():
-    pass
+def load_options():
+    try:
+        with open("options.json", "r") as file:
+            options.update(json.load(file))
+    except FileNotFoundError:
+        options.update(DEFAULT_OPTIONS)
+        save_options()
 
 
-def load_data():
-    data = {
-        "config": load_config(),
-        "images": load_images(),
-        "sounds": load_sounds(),
-        "worlds": load_worlds(),
-        "fonts": define_fonts()
-    }
-    return data
+def save_options():
+    with open("options.json", "w") as file:
+        json.dump(options, file, indent=4, sort_keys=True)
+
+
+def load_controls():
+    for k, v in options["controls"].items():
+        controls[k] = pygame.key.key_code(v)
+
+
+def load_fonts():
+    dev_font = pygame.freetype.Font(
+        os.path.join("fonts", "Inconsolata-VariableFont.ttf"),
+        16
+    )
+    dev_font.fgcolor = (255, 255, 255)
+    dev_font.pad = True
+    fonts.update({"dev_font": dev_font})
+
+
+def load_all():
+    load_options()
+    load_controls()
+    load_images()
+    load_worlds()
+    load_fonts()
