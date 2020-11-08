@@ -7,12 +7,13 @@
         "rotate_speed_mouse_multiplier": 1.5
     },
     "controls": {
-        "dev overlay": "f1",
         "move backward": "s",
         "move forward": "w",
         "move left": "a",
         "move right": "d",
+        "pause": "p",
         "rotate left": "q",
-        "rotate right": "e"
+        "rotate right": "e",
+        "toggle dev overlay": "f1"
     }
 }

@@ -18,7 +18,8 @@ MOVE_LEFT = "move left"
 MOVE_RIGHT = "move right"
 ROTATE_LEFT = "rotate left"
 ROTATE_RIGHT = "rotate right"
-DEV_OVERLAY = "dev overlay"
+TOGGLE_DEV_OVERLAY = "toggle dev overlay"
+PAUSE = "pause"
 
 DEFAULT_OPTIONS = {
     "controls": {
@@ -28,7 +29,8 @@ DEFAULT_OPTIONS = {
         MOVE_RIGHT: "d",
         ROTATE_LEFT: "q",
         ROTATE_RIGHT: "e",
-        DEV_OVERLAY: "f1"
+        PAUSE: "p",
+        TOGGLE_DEV_OVERLAY: "f1"
     },
     "camera": {
         "fov_degrees": 66,

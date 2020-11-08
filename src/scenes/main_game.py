@@ -11,6 +11,7 @@ class MainGame(Scene):
         self.world = worlds[world_name]
         self.world_name = world_name
         self.camera = camera.Camera(self.world)
+        super().__init__(scene_manager, MainGameDevOverlay)
         self.line_tops = []
         self.line_bottoms = []
         self.line_colors = []
@@ -18,7 +19,7 @@ class MainGame(Scene):
         self.rotate_sign = 0  # 1 is right, -1 is left
         self.move_sideways_sign = 0  #
         self.mouse_motion_x = 0  # positive sign is right, negative is left
-        super().__init__(scene_manager, MainGameDevOverlay)
+        self.is_paused = False
 
     def start(self):
         super().start()
@@ -42,6 +43,10 @@ class MainGame(Scene):
                 self.rotate_sign = -1
             elif event.key == controls[ROTATE_RIGHT]:
                 self.rotate_sign = 1
+            elif event.key == controls[PAUSE]:
+                self.is_paused = not self.is_paused
+                pygame.mouse.set_visible(self.is_paused)
+                pygame.event.set_grab(not self.is_paused)
         elif event.type == pygame.KEYUP:
             if event.key in (controls[MOVE_FORWARD], controls[MOVE_BACKWARD]):
                 self.move_straight_sign = 0
@@ -56,10 +61,17 @@ class MainGame(Scene):
             # to be. This was caused by there being 2 mousemotion events
             # on average per frame.
             self.mouse_motion_x += event.rel[0]
-        # elif event.type == pygame.ACTIVEEVENT:
-        #     print(event.gain)
+        elif (event.type == pygame.ACTIVEEVENT
+              and event.gain == 0 and event.state == 1):
+            # The window loses focus.
+            self.is_paused = True
+            pygame.mouse.set_visible(True)
+            pygame.event.set_grab(False)
 
     def update(self, dt):
+        if self.is_paused:
+            self.mouse_motion_x = 0
+            return
         if self.move_straight_sign != 0:
             self.camera.move_staight(self.move_straight_sign, dt)
         if self.move_sideways_sign != 0:
@@ -82,8 +94,8 @@ class MainGame(Scene):
             )
 
         # DEBUG:
-        # pygame.draw.circle(self.target_surface, (255, 0, 255),
-        #                    self.mouse_position, 5)
+        pygame.draw.circle(self.target_surface, (255, 0, 255),
+                           self.mouse_position, 5)
 
 
 class MainGameDevOverlay(DevOverlay):

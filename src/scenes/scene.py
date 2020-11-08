@@ -26,10 +26,10 @@ class Scene:
     def process_event(self, event):
         if event.type == pygame.QUIT:
             self.close()
-        if event.type == pygame.KEYDOWN:
-            if event.key == controls[DEV_OVERLAY]:
-                self.scene_manager.dev_overlay_visible = \
-                    not self.scene_manager.dev_overlay_visible
+        if (event.type == pygame.KEYDOWN and
+                event.key == controls[TOGGLE_DEV_OVERLAY]):
+            self.scene_manager.dev_overlay_visible = \
+                not self.scene_manager.dev_overlay_visible
         elif event.type == pygame.MOUSEMOTION:
             event.pos = scale_mouse(event.pos)
             event.rel = scale_mouse(event.rel)
