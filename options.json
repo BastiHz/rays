@@ -1,14 +1,16 @@
 {
     "camera": {
-        "fov_degrees": 90,
+        "fov_degrees": 66,
         "move_speed": 5,
         "rotate_speed": 3
     },
     "controls": {
         "move backward": "s",
         "move forward": "w",
-        "toggle dev overlay": "f1",
-        "turn left": "a",
-        "turn right": "d"
+        "move left": "a",
+        "move right": "d",
+        "rotate left": "q",
+        "rotate right": "e",
+        "toggle dev overlay": "f1"
     }
 }

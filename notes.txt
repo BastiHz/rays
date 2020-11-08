@@ -7,3 +7,10 @@
 * https://stackoverflow.com/questions/47239797/ray-casting-with-different-height-size
 * https://stackoverflow.com/questions/32716685/algorithm-for-2d-raytracer/32733650#32733650
 * https://www.youtube.com/watch?v=gYRrGTC7GtA
+
+
+Ob die Blöcke quadratisch aussehen, ist abhängig vom Seitenverhältnis
+des Fensters, vom FOV und dem Wert von h in dieser Zeile:
+line_height_half = h / wall_distance
+Was funktioniert ist ein Seitenverhältnis von 4:3, ein FOV und ein h von
+der halben Fensterhöhe (screen_height_half).

@@ -16,6 +16,7 @@ class MainGame(Scene):
         self.line_bottoms = []
         self.line_colors = []
         self.move_straight_sign = 0  # 1 is forward, -1 is backward
+        self.rotate_sign = 0  # 1 is right, -1 is left
 
     def process_event(self, event):
         super().process_event(event)
@@ -26,15 +27,23 @@ class MainGame(Scene):
                 self.move_straight_sign = 1
             elif event.key == controls[MOVE_BACKWARD]:
                 self.move_straight_sign = -1
+            elif event.key == controls[TURN_LEFT]:
+                self.rotate_sign = -1
+            elif event.key == controls[TURN_RIGHT]:
+                self.rotate_sign = 1
         elif event.type == pygame.KEYUP:
             if event.key in (controls[MOVE_FORWARD], controls[MOVE_BACKWARD]):
                 self.move_straight_sign = 0
+            elif event.key in (controls[TURN_LEFT], controls[TURN_RIGHT]):
+                self.rotate_sign = 0
         # elif event.type == pygame.ACTIVEEVENT:
         #     print(event.gain)
 
     def update(self, dt):
         if self.move_straight_sign != 0:
             self.camera.move_staight(self.move_straight_sign, dt)
+        if self.rotate_sign != 0:
+            self.camera.turn(self.rotate_sign, dt)
         self.line_tops, self.line_bottoms, self.line_colors = self.camera.cast_rays()
 
     def draw(self):

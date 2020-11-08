@@ -11,17 +11,15 @@ from src.resources import options
 class Camera:
     def __init__(self, world):
         self.position = pygame.Vector2(world["position_xy"])
-        self.map_position_x = int(self.position.x)
-        self.map_position_y = int(self.position.y)
         self.view_direction = pygame.Vector2(world["view_direction_xy"])
         camera_options = options["camera"]
         fov_radians = math.radians(camera_options["fov_degrees"])
-        self.camera_plane_half_len = math.tan(fov_radians / 2)
+        camera_plane_half_len = math.tan(fov_radians / 2)
         # View direction and camera plane must be perpendicular to each other.
         # So the camera plane is rotated 90 degrees counterclockwise to
         # the view direction.
         self.camera_plane = self.view_direction.rotate(90)
-        self.camera_plane.scale_to_length(self.camera_plane_half_len)
+        self.camera_plane.scale_to_length(camera_plane_half_len)
 
         n_rays = SMALL_DISPLAY_WIDTH
         self.screen_height_half = SMALL_DISPLAY_HEIGHT / 2
@@ -40,6 +38,8 @@ class Camera:
         # # https://lodev.org/cgtutor/raycasting.html
         # This function needs to be fast, so there is minimal use of
         # Vector2 here.
+        map_position_x = int(self.position.x)
+        map_position_y = int(self.position.y)
         line_tops = []
         line_bottoms = []
         line_colors = []
@@ -54,19 +54,19 @@ class Camera:
 
             if ray_direction_x < 0:
                 step_x = -1
-                side_distance_x = (self.position.x - self.map_position_x) * delta_distance_x
+                side_distance_x = (self.position.x - map_position_x) * delta_distance_x
             else:
                 step_x = 1
-                side_distance_x = (self.map_position_x + 1 - self.position.x) * delta_distance_x
+                side_distance_x = (map_position_x + 1 - self.position.x) * delta_distance_x
             if ray_direction_y < 0:
                 step_y = -1
-                side_distance_y = (self.position.y - self.map_position_y) * delta_distance_y
+                side_distance_y = (self.position.y - map_position_y) * delta_distance_y
             else:
                 step_y = 1
-                side_distance_y = (self.map_position_y + 1 - self.position.y) * delta_distance_y
+                side_distance_y = (map_position_y + 1 - self.position.y) * delta_distance_y
 
-            wall_x = self.map_position_x
-            wall_y = self.map_position_y
+            wall_x = map_position_x
+            wall_y = map_position_y
             side = None
             while (wall_int := self.world_map[wall_y, wall_x]) == 0:
                 # jump to next map square, OR in x-direction, OR in y-direction
@@ -100,13 +100,22 @@ class Camera:
         return line_tops, line_bottoms, line_colors
 
     def move_staight(self, sign, dt):
-        # sign is either 1 (forward) or -1 (backward)
-        new_position = self.position + self.view_direction * self.move_speed * sign * dt
-        if self.world_map[int(new_position.y), int(new_position.x)] == 0:
-            self.position = new_position
+        # positive sign is forward, negative is backward
+        new_x, new_y = self.position + self.view_direction * self.move_speed * dt * sign
+        if self.world_map[int(new_y), int(new_x)] == 0:
+            self.position.update(new_x, new_y)
 
     def move_sideways(self, sign, dt):
         pass
+
+    def turn(self, sign, dt):
+        # positive sign is right, negative is left
+        # This is because rotation happens in normal coordinates where y
+        # increases upwards, not in screen coordinates where it increases
+        # downwards.
+        angle = self.rotate_speed * dt * sign
+        self.view_direction.rotate_ip_rad(angle)
+        self.camera_plane.rotate_ip_rad(angle)
 
     @staticmethod
     def save_division(x, y):
