@@ -2,15 +2,17 @@
     "camera": {
         "fov_degrees": 66,
         "move_speed": 5,
-        "rotate_speed": 3
+        "rotate_speed_keyboard": 3.141592653589793,
+        "rotate_speed_mouse": 0.005235987755982988,
+        "rotate_speed_mouse_multiplier": 1.5
     },
     "controls": {
+        "dev overlay": "f1",
         "move backward": "s",
         "move forward": "w",
         "move left": "a",
         "move right": "d",
         "rotate left": "q",
-        "rotate right": "e",
-        "toggle dev overlay": "f1"
+        "rotate right": "e"
     }
 }

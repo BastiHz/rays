@@ -9,6 +9,7 @@ class Game:
     def __init__(self):
         pygame.init()
         self.main_display = pygame.display.set_mode(MAIN_DISPLAY_SIZE)
+        pygame.display.set_caption("rays")
         self.small_display = pygame.Surface(SMALL_DISPLAY_SIZE)
         self.clock = pygame.time.Clock()
         resources.load_all()
@@ -26,8 +27,6 @@ class Game:
             dt = min(self.clock.tick(FPS) / 1000, DT_LIMIT)
 
             for event in pygame.event.get():
-                # TODO: Check if event is mousemotion or mousebuttondown and
-                #  rescale it before passing it to the scene.
                 self.scene.process_event(event)
             self.scene.update(dt)
             self.scene.draw()

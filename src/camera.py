@@ -32,7 +32,9 @@ class Camera:
         self.colors = world["colors"]
         self.dark_colors = [[c // 2 for c in color] for color in self.colors]
         self.move_speed = camera_options["move_speed"]  # squares / s
-        self.rotate_speed = camera_options["rotate_speed"]  # radians / s
+        self.rotate_speed_keyboard = camera_options["rotate_speed_keyboard"]  # radians / s
+        self.rotate_speed_mouse = camera_options["rotate_speed_mouse"]  # radians / pixel
+        self.rotate_speed_mouse *= camera_options["rotate_speed_mouse_multiplier"]
         self.move_forward_velocity = self.view_direction * self.move_speed
         self.move_right_velocity = pygame.Vector2(  # negate this for moving left
             self.view_direction.y,
@@ -54,8 +56,8 @@ class Camera:
             # Delta distance could be calculated with pythagoras but only
             # the ratio between them is important, so this simplifies
             # the equation here.
-            delta_distance_x = abs(self.save_division(1, ray_direction_x))
-            delta_distance_y = abs(self.save_division(1, ray_direction_y))
+            delta_distance_x = abs(save_divide(1, ray_direction_x))
+            delta_distance_y = abs(save_divide(1, ray_direction_y))
 
             if ray_direction_x < 0:
                 step_x = -1
@@ -116,20 +118,25 @@ class Camera:
         if self.world_map[int(new_y), int(new_x)] == 0:
             self.position.update(new_x, new_y)
 
-    def turn(self, sign, dt):
+    def rotate_keyboard(self, sign, dt):
         # positive sign is right, negative is left
         # This is because rotation happens in normal coordinates where y
         # increases upwards, not in screen coordinates where it increases
         # downwards.
-        angle = self.rotate_speed * dt * sign
+        self.rotate(self.rotate_speed_keyboard * dt * sign)
+
+    def rotate_mouse(self, mouse_rel_x):
+        self.rotate(self.rotate_speed_mouse * mouse_rel_x)
+
+    def rotate(self, angle):
         self.view_direction.rotate_ip_rad(angle)
         self.camera_plane.rotate_ip_rad(angle)
         self.move_forward_velocity.rotate_ip_rad(angle)
         self.move_right_velocity.rotate_ip_rad(angle)
 
-    @staticmethod
-    def save_division(x, y):
-        try:
-            return x / y
-        except ZeroDivisionError:
-            return math.inf
+
+def save_divide(x, y):
+    try:
+        return x / y
+    except ZeroDivisionError:
+        return math.inf

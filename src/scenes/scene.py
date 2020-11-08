@@ -13,6 +13,7 @@ class Scene:
         else:
             self.dev_overlay = dev_overlay(self)
         self.is_done = False
+        self.mouse_position = (0, 0)
 
     def start(self):
         self.is_done = False
@@ -25,16 +26,30 @@ class Scene:
     def process_event(self, event):
         if event.type == pygame.QUIT:
             self.close()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == controls[TOGGLE_DEV_OVERLAY]:
+        if event.type == pygame.KEYDOWN:
+            if event.key == controls[DEV_OVERLAY]:
                 self.scene_manager.dev_overlay_visible = \
                     not self.scene_manager.dev_overlay_visible
+        elif event.type == pygame.MOUSEMOTION:
+            event.pos = scale_mouse(event.pos)
+            event.rel = scale_mouse(event.rel)
+            self.mouse_position = event.pos
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            event.pos = scale_mouse(event.pos)
+            self.mouse_position = event.pos
 
     def update(self, dt):
         raise NotImplementedError
 
     def draw(self):
         raise NotImplementedError
+
+
+def scale_mouse(pos_or_rel):
+    return (
+        pos_or_rel[0] / DISPLAY_MAGNIFICATION,
+        pos_or_rel[1] / DISPLAY_MAGNIFICATION
+    )
 
 
 class DevOverlay:
