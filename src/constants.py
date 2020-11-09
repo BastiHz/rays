@@ -1,17 +1,18 @@
 # Note about FOV and appearance of the walls:
 # The aspect ratio of the walls depends on the fov, the aspect ratio of the
-# window, and the value of h in this line: line_height_half = h / wall_distance.
-# They look square when the fov is 66°, the aspect ratio is 4:3 and h is half
+# window, and the value of h in this line: line_height = h / wall_distance.
+# They look square when the fov is 66°, the aspect ratio is 4:3 and h is
 # the display height. Consider this when changing any one of those three values.
 
 
 import math
 
 
-SMALL_DISPLAY_WIDTH = 600
-SMALL_DISPLAY_HEIGHT = 450
+SMALL_DISPLAY_WIDTH = 400
+SMALL_DISPLAY_HEIGHT = 300
+assert SMALL_DISPLAY_WIDTH * 3/4 == SMALL_DISPLAY_HEIGHT
 SMALL_DISPLAY_SIZE = (SMALL_DISPLAY_WIDTH, SMALL_DISPLAY_HEIGHT)
-DISPLAY_MAGNIFICATION = 2
+DISPLAY_MAGNIFICATION = 3
 MAIN_DISPLAY_WIDTH = SMALL_DISPLAY_WIDTH * DISPLAY_MAGNIFICATION
 MAIN_DISPLAY_HEIGHT = SMALL_DISPLAY_HEIGHT * DISPLAY_MAGNIFICATION
 MAIN_DISPLAY_SIZE = (MAIN_DISPLAY_WIDTH, MAIN_DISPLAY_HEIGHT)
@@ -47,5 +48,3 @@ DEFAULT_OPTIONS = {
         "rotate_speed_mouse_multiplier": 1.5
     }
 }
-
-BACKGROUND_COLOR = (32, 32, 32)

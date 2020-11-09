@@ -49,12 +49,13 @@ def load_controls():
 
 
 def load_fonts():
+    # TODO: Put this values into constants.py (font name, colors, size)
     dev_font = pygame.freetype.Font(
         os.path.join("fonts", "Inconsolata-VariableFont.ttf"),
         16
     )
     dev_font.fgcolor = (255, 255, 255)
-    dev_font.bgcolor = BACKGROUND_COLOR
+    dev_font.bgcolor = (32, 32, 32)
     dev_font.pad = True
     fonts.update({"dev_font": dev_font})
 

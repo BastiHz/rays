@@ -63,6 +63,9 @@ class MainGame(Scene):
             self.mouse_motion_x += event.rel[0]
         elif (event.type == pygame.ACTIVEEVENT
               and event.gain == 0 and event.state == 1):
+            # TODO: Use pygame.WINDOWEVENT with the value WINDOWEVENT_FOCUS_LOST
+            #   But document the activeevent version for if the windowevent api
+            #   changes in the future.
             # The window loses focus.
             self.is_paused = True
             pygame.mouse.set_visible(True)
@@ -81,17 +84,14 @@ class MainGame(Scene):
         if self.mouse_motion_x != 0:
             self.raycaster.rotate_mouse(self.mouse_motion_x)
             self.mouse_motion_x = 0
-        self.line_tops, self.line_bottoms, self.line_colors = self.raycaster.cast()
+
+        self.raycaster.cast()
 
     def draw(self):
-        self.target_surface.fill(BACKGROUND_COLOR)
-        for x in range(SMALL_DISPLAY_WIDTH):
-            pygame.draw.line(
-                self.target_surface,
-                self.line_colors[x],
-                (x, self.line_tops[x]),
-                (x, self.line_bottoms[x])
-            )
+        pygame.surfarray.blit_array(
+            self.target_surface,
+            self.raycaster.screen_buffer
+        )
 
 
 class MainGameDevOverlay(DevOverlay):

@@ -13,7 +13,6 @@ class Game:
             flags=pygame.SCALED,  # required for vsync
             vsync=True
         )
-        # self.main_display = pygame.display.set_mode(MAIN_DISPLAY_SIZE)
         pygame.display.set_caption("rays")
         self.small_display = pygame.Surface(SMALL_DISPLAY_SIZE)
         self.clock = pygame.time.Clock()
