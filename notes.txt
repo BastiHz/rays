@@ -19,11 +19,6 @@ der halben Fensterhöhe (screen_height_half).
 Vsync ist schwierig in Pygame 2.0. Ich bekomme kein vsync ohne die SCALED flag
 zu nutzen. Aber mit SCALED habe ich keine Kontroll über die Fenstergröße.
 Daher nutze ich jetzt einfach ein großes Fenster, das dann nicht skaliert wird.
-Die Frameate leided momentan noch nicht darunter, was beeindruckend ist bei
-einer Breite von 1200 und daher 1200 rays. Falls ich später die Anzahl der
-Strahlen verringern will, kann ich ja Rechtecke Zeichnen statt Linien. Und
-wenn es dann Wände mit Texturen gibt, kann ich die Texturausschnitte
-hochskalieren. Hoffentlich läuft das schnell genug.
 
 Siehe diese Antwort auf Reddit:
 https://www.reddit.com/r/pygame/comments/jp48ta/question_about_scaled_flag_and_vsync/gbdd953/

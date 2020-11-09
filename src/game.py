@@ -9,11 +9,13 @@ class Game:
     def __init__(self):
         pygame.init()
         self.main_display = pygame.display.set_mode(
-            DISPLAY_SIZE,
+            MAIN_DISPLAY_SIZE,
             flags=pygame.SCALED,  # required for vsync
             vsync=True
         )
+        # self.main_display = pygame.display.set_mode(MAIN_DISPLAY_SIZE)
         pygame.display.set_caption("rays")
+        self.small_display = pygame.Surface(SMALL_DISPLAY_SIZE)
         self.clock = pygame.time.Clock()
         resources.load_all()
         self.running = True
@@ -33,6 +35,12 @@ class Game:
                 self.scene.process_event(event)
             self.scene.update(dt)
             self.scene.draw()
+
+            pygame.transform.scale(
+                self.small_display,
+                MAIN_DISPLAY_SIZE,
+                self.main_display
+            )
 
             if self.dev_overlay_visible:
                 self.scene.dev_overlay.update()

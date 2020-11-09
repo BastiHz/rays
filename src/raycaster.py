@@ -19,13 +19,12 @@ class RayCaster:
         self.camera_plane = self.view_direction.rotate(90)
         self.camera_plane.scale_to_length(camera_plane_half_len)
 
-        n_rays = DISPLAY_WIDTH
-        self.screen_height_half = DISPLAY_HEIGHT / 2
-        self.screen_bottom = DISPLAY_HEIGHT - 1
+        self.screen_height_half = SMALL_DISPLAY_HEIGHT / 2
+        self.screen_bottom = SMALL_DISPLAY_HEIGHT - 1
         # camera_x is the x-coordinate on the camera plane which maps to
         # an x-coordinate on the screen. The left edge is -1 and the
         # right edge is +1.
-        self.camera_x = numpy.linspace(-1, 1, n_rays)
+        self.camera_x = numpy.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
         self.colors = world["colors"]
         self.dark_colors = [[c // 2 for c in color] for color in self.colors]

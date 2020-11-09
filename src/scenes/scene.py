@@ -1,13 +1,23 @@
 import pygame
 
-from src import constants
+from src.constants import *
 from src.resources import controls, fonts
+
+
+def scale_mouse(pos_or_rel):
+    """Adjust the mouse position or relative motion from screen coordinates
+    to small display coordinates.
+    """
+    return (
+        pos_or_rel[0] / DISPLAY_MAGNIFICATION,
+        pos_or_rel[1] / DISPLAY_MAGNIFICATION
+    )
 
 
 class Scene:
     def __init__(self, scene_manager, dev_overlay):
         self.scene_manager = scene_manager
-        self.target_surface = scene_manager.main_display
+        self.target_surface = scene_manager.small_display
         if dev_overlay is None:
             self.dev_overlay = DevOverlay(self)
         else:
@@ -27,12 +37,15 @@ class Scene:
         if event.type == pygame.QUIT:
             self.close()
         if (event.type == pygame.KEYDOWN and
-                event.key == controls[constants.TOGGLE_DEV_OVERLAY]):
+                event.key == controls[TOGGLE_DEV_OVERLAY]):
             self.scene_manager.dev_overlay_visible = \
                 not self.scene_manager.dev_overlay_visible
         elif event.type == pygame.MOUSEMOTION:
+            event.pos = scale_mouse(event.pos)
+            event.rel = scale_mouse(event.rel)
             self.mouse_position = event.pos
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            event.pos = scale_mouse(event.pos)
             self.mouse_position = event.pos
 
     def update(self, dt):

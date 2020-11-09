@@ -8,9 +8,14 @@
 import math
 
 
-DISPLAY_WIDTH = 1200
-DISPLAY_HEIGHT = 900
-DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
+SMALL_DISPLAY_WIDTH = 600
+SMALL_DISPLAY_HEIGHT = 450
+SMALL_DISPLAY_SIZE = (SMALL_DISPLAY_WIDTH, SMALL_DISPLAY_HEIGHT)
+DISPLAY_MAGNIFICATION = 2
+MAIN_DISPLAY_WIDTH = SMALL_DISPLAY_WIDTH * DISPLAY_MAGNIFICATION
+MAIN_DISPLAY_HEIGHT = SMALL_DISPLAY_HEIGHT * DISPLAY_MAGNIFICATION
+MAIN_DISPLAY_SIZE = (MAIN_DISPLAY_WIDTH, MAIN_DISPLAY_HEIGHT)
+
 FPS = 60
 DT_LIMIT = 2 / FPS  # half the time of one normal frame
 
@@ -38,7 +43,7 @@ DEFAULT_OPTIONS = {
         "fov_degrees": 66,
         "move_speed": 5,  # squares / s
         "rotate_speed_keyboard": math.pi,  # radians / s
-        "rotate_speed_mouse": math.pi / DISPLAY_WIDTH,  # radians / pixel
+        "rotate_speed_mouse": math.pi / SMALL_DISPLAY_WIDTH,  # radians / pixel
         "rotate_speed_mouse_multiplier": 1.5
     }
 }
