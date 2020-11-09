@@ -6,7 +6,7 @@ from src.constants import *
 from src.resources import options
 
 
-class Camera:
+class RayCaster:
     def __init__(self, world):
         self.position = pygame.Vector2(world["position_xy"])
         self.view_direction = pygame.Vector2(world["view_direction_xy"])
@@ -39,7 +39,7 @@ class Camera:
             self.view_direction.x
         ) * self.move_speed
 
-    def cast_rays(self):
+    def cast(self):
         # # https://lodev.org/cgtutor/raycasting.html
         # This function needs to be fast, so there is minimal use of
         # Vector2 here.
@@ -104,7 +104,7 @@ class Camera:
 
         return line_tops, line_bottoms, line_colors
 
-    def move_staight(self, sign, dt):
+    def move_straight(self, sign, dt):
         # positive sign is forward, negative is backward
         new_x, new_y = self.position + self.move_forward_velocity * sign * dt
         if self.world_map[int(new_y), int(new_x)] == 0:

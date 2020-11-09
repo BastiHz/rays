@@ -3,14 +3,14 @@ import pygame
 from src.constants import *
 from src.resources import controls, worlds
 from src.scenes.scene import Scene, DevOverlay
-from src import camera
+from src import raycaster
 
 
 class MainGame(Scene):
     def __init__(self, scene_manager, world_name):
         self.world = worlds[world_name]
         self.world_name = world_name
-        self.camera = camera.Camera(self.world)
+        self.raycaster = raycaster.RayCaster(self.world)
         super().__init__(scene_manager, MainGameDevOverlay)
         self.line_tops = []
         self.line_bottoms = []
@@ -73,15 +73,15 @@ class MainGame(Scene):
             self.mouse_motion_x = 0
             return
         if self.move_straight_sign != 0:
-            self.camera.move_staight(self.move_straight_sign, dt)
+            self.raycaster.move_straight(self.move_straight_sign, dt)
         if self.move_sideways_sign != 0:
-            self.camera.move_sideways(self.move_sideways_sign, dt)
+            self.raycaster.move_sideways(self.move_sideways_sign, dt)
         if self.rotate_sign != 0:
-            self.camera.rotate_keyboard(self.rotate_sign, dt)
+            self.raycaster.rotate_keyboard(self.rotate_sign, dt)
         if self.mouse_motion_x != 0:
-            self.camera.rotate_mouse(self.mouse_motion_x)
+            self.raycaster.rotate_mouse(self.mouse_motion_x)
             self.mouse_motion_x = 0
-        self.line_tops, self.line_bottoms, self.line_colors = self.camera.cast_rays()
+        self.line_tops, self.line_bottoms, self.line_colors = self.raycaster.cast()
 
     def draw(self):
         self.target_surface.fill(BACKGROUND_COLOR)
@@ -133,13 +133,13 @@ class MainGameDevOverlay(DevOverlay):
     def get_pos_text(self):
         return (
             f"position: "
-            f"{self.scene.camera.position.x:.2f}, "
-            f"{self.scene.camera.position.y:.2f}"
+            f"{self.scene.raycaster.position.x:.2f}, "
+            f"{self.scene.raycaster.position.y:.2f}"
         )
 
     def get_view_dir_text(self):
         return (
             f"view direction: "
-            f"{self.scene.camera.view_direction.x:.2f}, "
-            f"{self.scene.camera.view_direction.y:.2f}"
+            f"{self.scene.raycaster.view_direction.x:.2f}, "
+            f"{self.scene.raycaster.view_direction.y:.2f}"
         )
