@@ -33,10 +33,7 @@ class RayCaster:
         self.rotate_speed_mouse = camera_options["rotate_speed_mouse"]  # radians / pixel
         self.rotate_speed_mouse *= camera_options["rotate_speed_mouse_multiplier"]
         self.move_forward_velocity = self.view_direction * self.move_speed
-        self.move_right_velocity = pygame.Vector2(  # negate this for moving left
-            self.view_direction.y,
-            self.view_direction.x
-        ) * self.move_speed
+        self.move_right_velocity = self.move_forward_velocity.rotate(90)
 
     def cast(self):
         # # https://lodev.org/cgtutor/raycasting.html
