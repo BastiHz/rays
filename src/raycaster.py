@@ -1,10 +1,13 @@
 import pygame
-import numpy
+import numpy as np
 
 
 from src.constants import *
 from src.resources import options
 from src import textures
+
+
+np.seterr(divide='ignore')
 
 
 def rgb_to_int(r, g, b):
@@ -15,7 +18,7 @@ def rgb_to_int(r, g, b):
 
     r, g, and b must be integers
 
-    I could also use a 3-dimensional numpy array and avoid the conversion
+    I could also use a 3-dimensional np array and avoid the conversion
     to ints but blitting that to a surface seems to be slower than with
     a 2d array.
     """
@@ -32,8 +35,8 @@ def save_divide(x, y):
 class RayCaster:
     def __init__(self, world):
         self.position = pygame.Vector2(world["position_xy"])
-        self.map_position_x = int(self.position.x)
-        self.map_position_y = int(self.position.y)
+        self.map_position_x = np.full(SMALL_DISPLAY_WIDTH, self.position.x, int)
+        self.map_position_y = np.full(SMALL_DISPLAY_WIDTH, self.position.y, int)
         self.view_direction = pygame.Vector2(world["view_direction_xy"])
         camera_options = options["camera"]
         fov_radians = math.radians(camera_options["fov_degrees"])
@@ -45,15 +48,16 @@ class RayCaster:
         self.camera_plane.scale_to_length(camera_plane_half_len)
         self.screen_height_half = SMALL_DISPLAY_HEIGHT // 2
         self.h = SMALL_DISPLAY_HEIGHT  # Change this to modify the perspective
+        self.h_half = self.h / 2
         self.screen_bottom = SMALL_DISPLAY_HEIGHT - 1
         # camera_x is the x-coordinate on the camera plane which maps to
         # an x-coordinate on the screen. The left edge is -1 and the
         # right edge is +1.
-        self.camera_x = numpy.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
+        self.camera_x = np.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
 
         self.background_color = rgb_to_int(32, 32, 32)
-        self.screen_buffer = numpy.full(
+        self.screen_buffer = np.full(
             SMALL_DISPLAY_SIZE,
             self.background_color
         )
@@ -78,93 +82,112 @@ class RayCaster:
         self.move_right_velocity = self.move_forward_velocity.rotate(90)
 
     def cast(self):
+        # The vectorized version of this tutorial:
         # https://lodev.org/cgtutor/raycasting.html
         # My version looks a bit different from the tutorial and my map is
         # rotated by 90 degrees because of the way the map is stored. But
         # that doesn't matter.
         # And for some reason my textures are rotated or flipped.
-        # This function needs to be fast, so there is minimal use of
-        # Vector2 here.
-        self.screen_buffer[:] = self.background_color
-        for x, camera_x in enumerate(self.camera_x):
-            ray_direction_x, ray_direction_y = self.view_direction + self.camera_plane * camera_x
 
-            # Delta distance could be calculated with pythagoras but only
-            # the ratio between them is important which simplifies
-            # the equation here.
-            delta_distance_x = abs(save_divide(1, ray_direction_x))
-            delta_distance_y = abs(save_divide(1, ray_direction_y))
+        # Ideas for further improvements:
+        # - Try pre-allocating the np arrays. For example np.divide()
+        #   lets you specify an output array. Also overwrite instead of
+        #   freshly allocate.
 
-            if ray_direction_x < 0:
-                step_x = -1
-                side_distance_x = (self.position.x - self.map_position_x) * delta_distance_x
-            else:
-                step_x = 1
-                side_distance_x = (self.map_position_x + 1 - self.position.x) * delta_distance_x
-            if ray_direction_y < 0:
-                step_y = -1
-                side_distance_y = (self.position.y - self.map_position_y) * delta_distance_y
-            else:
-                step_y = 1
-                side_distance_y = (self.map_position_y + 1 - self.position.y) * delta_distance_y
+        self.screen_buffer[...] = self.background_color
 
-            # perform DDA
-            wall_x = self.map_position_x
-            wall_y = self.map_position_y
-            side = None  # Was it a north/south or west/east wall?
-            while (wall_int := self.world_map[wall_y, wall_x]) == 0:
+        ray_direction_x = self.view_direction.x + self.camera_plane.x * self.camera_x
+        ray_direction_y = self.view_direction.y + self.camera_plane.y * self.camera_x
+
+        # Delta distance could be calculated with pythagoras but only
+        # the ratio between them is important which simplifies
+        # the equation here.
+        delta_distance_x = abs(np.divide(1, ray_direction_x))
+        delta_distance_y = abs(np.divide(1, ray_direction_y))
+
+        ray_dir_x_less_0 = ray_direction_x < 0
+        step_x = np.where(ray_dir_x_less_0, -1, 1)
+        side_distance_x = np.where(
+            ray_dir_x_less_0,
+            (self.position.x - self.map_position_x) * delta_distance_x,
+            (self.map_position_x + 1 - self.position.x) * delta_distance_x
+        )
+        ray_dir_y_less_0 = ray_direction_y < 0
+        step_y = np.where(ray_dir_y_less_0, -1, 1)
+        side_distance_y = np.where(
+            ray_dir_y_less_0,
+            (self.position.y - self.map_position_y) * delta_distance_y,
+            (self.map_position_y + 1 - self.position.y) * delta_distance_y
+        )
+
+        # TODO: Maybe vectorize this, too.
+        # perform DDA
+        wall_x = self.map_position_x.copy()
+        wall_y = self.map_position_y.copy()
+        side = np.zeros(SMALL_DISPLAY_WIDTH, bool)  # Is it a north/south or west/east wall?
+        wall_int = np.zeros(SMALL_DISPLAY_WIDTH, int)
+        for i in range(SMALL_DISPLAY_WIDTH):
+            while (wall := self.world_map[wall_y[i], wall_x[i]]) == 0:
                 # jump to next map square, OR in x-direction, OR in y-direction
-                if side_distance_x < side_distance_y:
-                    side_distance_x += delta_distance_x
-                    wall_x += step_x
-                    side = 0
+                if side_distance_x[i] < side_distance_y[i]:
+                    side_distance_x[i] += delta_distance_x[i]
+                    wall_x[i] += step_x[i]
+                    side[i] = False
                 else:
-                    side_distance_y += delta_distance_y
-                    wall_y += step_y
-                    side = 1
+                    side_distance_y[i] += delta_distance_y[i]
+                    wall_y[i] += step_y[i]
+                    side[i] = True
+            wall_int[i] = wall
 
-            # Calculate wall distance perpendicular to the camera plane.
-            if side:
-                wall_distance = (wall_y - self.position.y + (1 - step_y) / 2) / ray_direction_y
+        # Calculate wall distance perpendicular to the camera plane.
+        wall_distance = np.where(
+            side,
+            (wall_y - self.position.y + (1 - step_y) / 2) / ray_direction_y,
+            (wall_x - self.position.x + (1 - step_x) / 2) / ray_direction_x
+        )
+
+        # Calculate length of vertical stripe.
+        line_height = self.h // wall_distance
+        line_height_half = line_height // 2
+        line_top = np.maximum(self.screen_height_half - line_height_half, 0).astype(int)
+        line_bottom = np.minimum(
+            self.screen_height_half + line_height_half,
+            self.screen_bottom
+        ).astype(int)
+
+        # Calculate where exactly the wall was hit.
+        # The "% 1" has the ame effect as this line in
+        # the tutorial: wallX -= floor((wallX))
+        wall_x = np.where(
+            side,
+            (self.position.x + wall_distance * ray_direction_x) % 1,
+            (self.position.y + wall_distance * ray_direction_y) % 1
+        ) % 1
+
+        # x coordinate on the texture
+        tex_x = (wall_x * self.texture_width).astype(int)
+        tex_x = np.where(
+            np.logical_or(
+                np.logical_and(np.logical_not(side), ray_direction_x > 0),
+                np.logical_and(side, ray_direction_y < 0)
+            ),
+            self.texture_width - tex_x - 1,
+            tex_x
+        )
+
+        # How much to increase the texture coordinate per screen pixel.
+        step = self.texture_height / line_height
+        # Starting texture coordinate.
+        tex_pos_start = (line_top - self.h_half + line_height_half) * step
+        for x in range(SMALL_DISPLAY_WIDTH):
+            y = np.arange(line_top[x], line_bottom[x])
+            tex_pos = tex_pos_start[x] + np.arange(len(y)) * step[x]
+            # TODO: Maybe use "&" like in the tutorial instead of "%"?
+            tex_y = (tex_pos % self.texture_height).astype(int)
+            if side[x]:
+                self.screen_buffer[x, y] = self.textures[wall_int[x]][tex_x[x], tex_y]
             else:
-                wall_distance = (wall_x - self.position.x + (1 - step_x) / 2) / ray_direction_x
-
-            # Calculate length of vertical stripe.
-            line_height = int(self.h // wall_distance)
-            line_height_half = line_height // 2
-            line_top = max(self.screen_height_half - line_height_half, 0)
-            line_bottom = min(
-                self.screen_height_half + line_height_half,
-                self.screen_bottom
-            )
-
-            # Calculate where exactly the wall was hit.
-            if side:
-                wall_x = self.position.x + wall_distance * ray_direction_x
-            else:
-                wall_x = self.position.y + wall_distance * ray_direction_y
-            wall_x = wall_x % 1  # in the tutorial:  wallX -= floor((wallX))
-
-            # x coordinate on the texture
-            tex_x = int(wall_x * self.texture_width)
-            if ((side == 0 and ray_direction_x > 0)
-                    or (side == 1 and ray_direction_y < 0)):
-                tex_x = self.texture_width - tex_x - 1
-
-            # How much to increase the texture coordinate per screen pixel.
-            step = self.texture_height / line_height
-            # Starting texture coordinate.
-            tex_pos = (line_top - self.h / 2 + line_height_half) * step
-            for y in range(line_top, line_bottom):
-                # Cast the texture coordinate to integer, and mask
-                # with (texHeight - 1) in case of overflow
-                tex_y = int(tex_pos % self.texture_height)
-                tex_pos += step
-                if side:
-                    color = self.textures[wall_int][self.texture_height * tex_y + tex_x]
-                else:
-                    color = self.textures_dark[wall_int][self.texture_height * tex_y + tex_x]
-                self.screen_buffer[x, y] = color
+                self.screen_buffer[x, y] = self.textures_dark[wall_int[x]][tex_x[x], tex_y]
 
     def move_straight(self, sign, dt):
         # positive sign is forward, negative is backward
@@ -179,8 +202,8 @@ class RayCaster:
         new_y_int = int(new_y)
         if self.world_map[new_y_int, new_x_int] == 0:
             self.position.update(new_x, new_y)
-            self.map_position_x = new_x_int
-            self.map_position_y = new_y_int
+            self.map_position_x[:] = new_x_int
+            self.map_position_y[:] = new_y_int
 
     def rotate_keyboard(self, sign, dt):
         # positive sign is right, negative is left
