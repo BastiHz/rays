@@ -2,20 +2,17 @@
 # the part where I load textures from image files.
 
 
-import numpy
+import numpy as np
 
 
 # This stuff is mostly just copied from the tutorial:
 # https://lodev.org/cgtutor/raycasting.html#Textured_Raycaster
 
 def generate_textures(width, height):
-    # TODO: For some reason the textures are vectors in the tutorial, not
-    #  2d arrays. Maybe change that.
-    textures = [numpy.zeros((width, height), dtype=int) for _ in range(8)]
+    textures = [np.zeros((width, height), int) for _ in range(8)]
     for x in range(width):
         for y in range(height):
             xor_color = (x * 256 // width) ^ (y * 256 // height)
-            # x_color = x * 256 // width
             y_color = y * 256 // height
             xy_color = y * 128 // height + x * 128 // width
             textures[0][x, y] = 65536 * 254 * (x != y and x != width - y)  # flat red texture with black cross
@@ -26,4 +23,9 @@ def generate_textures(width, height):
             textures[5][x, y] = 65536 * 192 * (x % 16 and y % 16)  # red bricks
             textures[6][x, y] = 65536 * y_color  # red gradient
             textures[7][x, y] = 128 + 256 * 128 + 65536 * 128  # flat grey texture
+
+    # Flip the textures horizontally so they look like in the examples pictures
+    # in the tutorial.
+    textures = [np.flip(t, axis=0) for t in textures]
+
     return textures
