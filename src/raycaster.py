@@ -150,10 +150,7 @@ class RayCaster:
         line_height = self.h // wall_distance
         line_height_half = line_height // 2
         line_top = np.maximum(self.screen_height_half - line_height_half, 0).astype(int)
-        line_bottom = np.minimum(
-            self.screen_height_half + line_height_half,
-            self.screen_bottom
-        ).astype(int)
+        line_bottom = SMALL_DISPLAY_HEIGHT - line_top
 
         # Calculate where exactly the wall was hit.
         # The "% 1" has the ame effect as this line in
