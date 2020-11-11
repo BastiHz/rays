@@ -92,7 +92,8 @@ class RayCaster:
         # Ideas for further improvements:
         # - Try pre-allocating the np arrays. For example np.divide()
         #   lets you specify an output array. Also overwrite instead of
-        #   freshly allocate.
+        #   freshly allocate. Maybe I will have to make those into instance
+        #   variables then.
 
         self.screen_buffer[...] = self.background_color
 
@@ -186,17 +187,17 @@ class RayCaster:
 
     def move_straight(self, sign, dt):
         # positive sign is forward, negative is backward
-        self.move(*self.position + self.move_forward_velocity * sign * dt)
+        self.move(self.position + self.move_forward_velocity * sign * dt)
 
     def move_sideways(self, sign, dt):
         # positive sign is right, negative is left
-        self.move(*self.position + self.move_right_velocity * sign * dt)
+        self.move(self.position + self.move_right_velocity * sign * dt)
 
-    def move(self, new_x, new_y):
-        new_x_int = int(new_x)
-        new_y_int = int(new_y)
+    def move(self, new_position):
+        new_x_int = int(new_position.x)
+        new_y_int = int(new_position.y)
         if self.world_map[new_y_int, new_x_int] == 0:
-            self.position.update(new_x, new_y)
+            self.position = new_position
             self.map_position_x[:] = new_x_int
             self.map_position_y[:] = new_y_int
 
