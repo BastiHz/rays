@@ -29,23 +29,19 @@ class Game:
             # Protect against hiccups (e.g. from moving the pygame window)
             # by setting an upper limit to dt.
             dt = min(self.clock.tick(FPS) / 1000, DT_LIMIT)
-
             for event in pygame.event.get():
                 self.scene.process_event(event)
             self.scene.update(dt)
             self.scene.draw()
-
             pygame.transform.scale(
                 self.small_display,
                 MAIN_DISPLAY_SIZE,
                 self.main_display
             )
-
             if self.dev_overlay_visible:
                 self.scene.dev_overlay.update()
                 self.scene.dev_overlay.draw()
             pygame.display.flip()
-
             if self.scene.is_done:
                 self.change_scene()
 
