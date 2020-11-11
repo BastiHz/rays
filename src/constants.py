@@ -29,6 +29,10 @@ ROTATE_RIGHT = "rotate right"
 TOGGLE_DEV_OVERLAY = "toggle dev overlay"
 PAUSE = "pause"
 
+
+# ATTENTION: Do not put constants from above into the default options below.
+#  Because it has happened multiple times that I changed a constant and forgot
+#  to regenerate the options file which led to weird bugs.
 DEFAULT_OPTIONS = {
     "controls": {
         MOVE_FORWARD: "w",
@@ -44,7 +48,7 @@ DEFAULT_OPTIONS = {
         "fov_degrees": 66,
         "move_speed": 5,  # squares / s
         "rotate_speed_keyboard": math.pi,  # radians / s
-        "rotate_speed_mouse": math.pi / SMALL_DISPLAY_WIDTH,  # radians / pixel
+        "rotate_speed_mouse": math.pi,  # radians / SMALL_WINDOW_WIDTH
         "rotate_speed_mouse_multiplier": 1.5
     }
 }

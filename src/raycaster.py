@@ -76,7 +76,7 @@ class RayCaster:
 
         self.move_speed = camera_options["move_speed"]  # squares / s
         self.rotate_speed_keyboard = camera_options["rotate_speed_keyboard"]  # radians / s
-        self.rotate_speed_mouse = camera_options["rotate_speed_mouse"]  # radians / pixel
+        self.rotate_speed_mouse = camera_options["rotate_speed_mouse"] / SMALL_DISPLAY_WIDTH  # radians / pixel
         self.rotate_speed_mouse *= camera_options["rotate_speed_mouse_multiplier"]
         self.move_forward_velocity = self.view_direction * self.move_speed
         self.move_right_velocity = self.move_forward_velocity.rotate(90)

@@ -3,7 +3,7 @@
         "fov_degrees": 66,
         "move_speed": 5,
         "rotate_speed_keyboard": 3.141592653589793,
-        "rotate_speed_mouse": 0.002617993877991494,
+        "rotate_speed_mouse": 3.141592653589793,
         "rotate_speed_mouse_multiplier": 1.5
     },
     "controls": {
