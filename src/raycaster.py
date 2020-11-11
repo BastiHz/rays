@@ -120,37 +120,21 @@ class RayCaster:
             (self.map_position_y + 1 - self.position.y) * delta_distance_y
         )
 
-        # TODO: I have a feeling that this part could be optimized further.
         # perform DDA
         wall_x = self.map_position_x.copy()
         wall_y = self.map_position_y.copy()
         side = np.zeros(SMALL_DISPLAY_WIDTH, bool)  # Is it a north/south or west/east wall?
         wall_int = self.world_map[wall_y, wall_x]
         while any(i := wall_int == 0):
-            x_lt_y = np.logical_and(i, side_distance_x < side_distance_y)
-            side_distance_x = np.where(
-                x_lt_y,
-                side_distance_x + delta_distance_x,
-                side_distance_x
-            )
-            wall_x = np.where(
-                x_lt_y,
-                wall_x + step_x,
-                wall_x
-            )
-            side[x_lt_y] = False
-            y_ge_x = np.logical_and(i, np.logical_not(x_lt_y))
-            side_distance_y = np.where(
-                y_ge_x,
-                side_distance_y + delta_distance_y,
-                side_distance_y
-            )
-            wall_y = np.where(
-                y_ge_x,
-                wall_y + step_y,
-                wall_y
-            )
-            side[y_ge_x] = True
+            x_lt_y = side_distance_x < side_distance_y
+            i_and_x_lt_y = np.logical_and(i, x_lt_y)
+            side_distance_x[i_and_x_lt_y] += delta_distance_x[i_and_x_lt_y]
+            wall_x[i_and_x_lt_y] += step_x[i_and_x_lt_y]
+            side[i_and_x_lt_y] = False
+            i_and_y_ge_x = np.logical_and(i, np.logical_not(x_lt_y))
+            side_distance_y[i_and_y_ge_x] += delta_distance_y[i_and_y_ge_x]
+            wall_y[i_and_y_ge_x] += step_y[i_and_y_ge_x]
+            side[i_and_y_ge_x] = True
             wall_int = self.world_map[wall_y, wall_x]
 
         # Calculate wall distance perpendicular to the camera plane.
