@@ -120,24 +120,38 @@ class RayCaster:
             (self.map_position_y + 1 - self.position.y) * delta_distance_y
         )
 
-        # TODO: Maybe vectorize this, too.
+        # TODO: I have a feeling that this part could be optimized further.
         # perform DDA
         wall_x = self.map_position_x.copy()
         wall_y = self.map_position_y.copy()
         side = np.zeros(SMALL_DISPLAY_WIDTH, bool)  # Is it a north/south or west/east wall?
-        wall_int = np.zeros(SMALL_DISPLAY_WIDTH, int)
-        for i in range(SMALL_DISPLAY_WIDTH):
-            while (wall := self.world_map[wall_y[i], wall_x[i]]) == 0:
-                # jump to next map square, OR in x-direction, OR in y-direction
-                if side_distance_x[i] < side_distance_y[i]:
-                    side_distance_x[i] += delta_distance_x[i]
-                    wall_x[i] += step_x[i]
-                    side[i] = False
-                else:
-                    side_distance_y[i] += delta_distance_y[i]
-                    wall_y[i] += step_y[i]
-                    side[i] = True
-            wall_int[i] = wall
+        wall_int = self.world_map[wall_y, wall_x]
+        while any(i := wall_int == 0):
+            x_lt_y = np.logical_and(i, side_distance_x < side_distance_y)
+            side_distance_x = np.where(
+                x_lt_y,
+                side_distance_x + delta_distance_x,
+                side_distance_x
+            )
+            wall_x = np.where(
+                x_lt_y,
+                wall_x + step_x,
+                wall_x
+            )
+            side[x_lt_y] = False
+            y_ge_x = np.logical_and(i, np.logical_not(x_lt_y))
+            side_distance_y = np.where(
+                y_ge_x,
+                side_distance_y + delta_distance_y,
+                side_distance_y
+            )
+            wall_y = np.where(
+                y_ge_x,
+                wall_y + step_y,
+                wall_y
+            )
+            side[y_ge_x] = True
+            wall_int = self.world_map[wall_y, wall_x]
 
         # Calculate wall distance perpendicular to the camera plane.
         wall_distance = np.where(
