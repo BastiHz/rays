@@ -23,9 +23,8 @@ def load_worlds():
     for filename in os.listdir("worlds"):
         with open(os.path.join("worlds", filename), "r") as file:
             world_data = json.load(file)
-            world_name = world_data["name"]
-            world_data["map"] = numpy.asarray(world_data["map"])
-            assert numpy.issubdtype(world_data["map"].dtype, numpy.integer)
+            world_name = os.path.splitext(filename)[0]
+            world_data["map"] = numpy.asarray(world_data["map"], dtype=int)
             worlds[world_name] = world_data
 
 
