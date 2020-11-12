@@ -83,17 +83,6 @@ class RayCaster:
     def cast(self):
         # The vectorized version of this tutorial:
         # https://lodev.org/cgtutor/raycasting.html
-        # My version looks a bit different from the tutorial and my map is
-        # rotated by 90 degrees because of the way the map is stored. But
-        # that doesn't matter.
-        # And for some reason my textures are rotated or flipped.
-
-        # TODO: Read the numpy documentation and maybe do a tutorial.
-        # Ideas for further improvements:
-        # - Try pre-allocating the np arrays. For example np.divide()
-        #   lets you specify an output array. Also overwrite instead of
-        #   freshly allocate. Maybe I will have to make those into instance
-        #   variables then.
 
         self.screen_buffer[...] = self.background_color
 
@@ -136,7 +125,7 @@ class RayCaster:
             side_distance_y[i_and_y_ge_x] += delta_distance_y[i_and_y_ge_x]
             wall_y[i_and_y_ge_x] += step_y[i_and_y_ge_x]
             side[i_and_y_ge_x] = True
-            wall_int = self.world_map[wall_y, wall_x]
+            wall_int[...] = self.world_map[wall_y, wall_x]
 
         # Calculate wall distance perpendicular to the camera plane.
         wall_distance = np.where(
@@ -151,17 +140,15 @@ class RayCaster:
         line_top = np.maximum(self.screen_height_half - line_height_half, 0)
         line_bottom = SMALL_DISPLAY_HEIGHT - line_top
 
-        # Calculate where exactly the wall was hit.
-        # The "% 1" has the ame effect as this line in
+        # Calculate where exactly the wall was hit to get
+        # the x-coordinate on the texture.
+        # The "% 1" has the same effect as this line in
         # the tutorial: wallX -= floor((wallX))
-        wall_x = np.where(
+        tex_x = ((np.where(
             side,
-            (self.position.x + wall_distance * ray_direction_x) % 1,
-            (self.position.y + wall_distance * ray_direction_y) % 1
-        )
-
-        # x coordinate on the texture
-        tex_x = (wall_x * self.texture_width).astype(int)
+            (self.position.x + wall_distance * ray_direction_x),
+            (self.position.y + wall_distance * ray_direction_y)
+        ) % 1) * self.texture_width).astype(int)
         tex_x = np.where(
             np.logical_or(
                 np.logical_and(np.logical_not(side), ray_direction_x > 0),
@@ -175,7 +162,6 @@ class RayCaster:
         step = self.texture_height / line_height
         # Starting texture coordinate.
         tex_pos_start = (line_top - self.h_half + line_height_half) * step
-        # TODO: Can I make this faster?
         for x in range(SMALL_DISPLAY_WIDTH):
             y = np.arange(line_top[x], line_bottom[x], dtype=int)
             tex_y = (tex_pos_start[x] + np.arange(len(y)) * step[x]).astype(int)
