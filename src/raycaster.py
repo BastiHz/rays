@@ -47,7 +47,10 @@ class RayCaster:
         self.camera_plane = self.view_direction.rotate(90)
         self.camera_plane.scale_to_length(camera_plane_half_len)
         self.screen_height_half = SMALL_DISPLAY_HEIGHT // 2
-        self.h = SMALL_DISPLAY_HEIGHT  # Change this to modify the perspective
+        # h and h_half can be changed to modify the perspective. But with an
+        # aspect ratio of 4:3 and an fov of 66° it works nicely when
+        # h is the display height. Never tried to change it, though.
+        self.h = SMALL_DISPLAY_HEIGHT
         self.h_half = self.h / 2
         self.screen_bottom = SMALL_DISPLAY_HEIGHT - 1
         # camera_x is the x-coordinate on the camera plane which maps to
@@ -56,11 +59,7 @@ class RayCaster:
         self.camera_x = np.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
 
-        self.background_color = rgb_to_int(32, 32, 32)
-        self.screen_buffer = np.full(
-            SMALL_DISPLAY_SIZE,
-            self.background_color
-        )
+        self.screen_buffer = np.zeros(SMALL_DISPLAY_SIZE, int)
         self.texture_width = 64
         self.texture_height = 64
         self.textures = textures.generate_textures(
@@ -72,6 +71,8 @@ class RayCaster:
         # their corresponding map integers. Because the lowest wall value is 1.
         self.textures.insert(0, None)
         self.textures_dark.insert(0, None)
+        self.floor_texture = self.textures[2]
+        self.ceiling_texture = self.textures[3]
 
         self.move_speed = camera_options["move_speed"]  # squares / s
         self.rotate_speed_keyboard = camera_options["rotate_speed_keyboard"]  # radians / s
@@ -81,10 +82,67 @@ class RayCaster:
         self.move_right_velocity = self.move_forward_velocity.rotate(90)
 
     def cast(self):
+        self.cast_floor_ceiling()
+        self.cast_walls()
+
+    def cast_floor_ceiling(self):
+        # https://lodev.org/cgtutor/raycasting2.html
+
+        # TODO: vectorize this
+        for y in range(SMALL_DISPLAY_HEIGHT):
+            # rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+            ray_dir_x_0 = self.view_direction.x - self.camera_plane.x
+            ray_dir_y_0 = self.view_direction.y - self.camera_plane.y
+            ray_dir_x_1 = self.view_direction.x + self.camera_plane.x
+            ray_dir_y_1 = self.view_direction.y + self.camera_plane.y
+
+            # Current y position compared to the center of the screen (the horizon)
+            p = y - self.screen_height_half
+            if p == 0:
+                # Why isn't this handled in the tutorial?
+                # However it shouldn't matter because there will always be
+                # walls at the horizon.
+                continue
+
+            # Vertical position of the camera.
+            pos_z = self.screen_height_half  # FIXME: unnecessary, remove this
+
+            # Horizontal distance from the camera to the floor for the current row.
+            # 0.5 is the z position exactly in the middle between floor and ceiling.
+            row_distance = pos_z / p
+
+            # calculate the real world step vector we have to add for each x 
+            # (parallel to camera plane), adding step by step avoids 
+            # multiplications with a weight in the inner loop
+            floor_step_x = row_distance * (ray_dir_x_1 - ray_dir_x_0) / SMALL_DISPLAY_WIDTH
+            floor_step_y = row_distance * (ray_dir_y_1 - ray_dir_y_0) / SMALL_DISPLAY_WIDTH
+            
+            # real world coordinates of the leftmost column. This will be 
+            # updated as we step to the right.
+            floor_x = self.position.x + row_distance * ray_dir_x_0
+            floor_y = self.position.y + row_distance * ray_dir_y_0
+
+            for x in range(SMALL_DISPLAY_WIDTH):
+                # the cell coord is simply got from the integer parts 
+                # of floor_x and floor_y
+                cell_x = int(floor_x)
+                cell_y = int(floor_y)
+            
+                # get the texture coordinate from the fractional part
+                tex_x = int(self.texture_width * (floor_x - cell_x)) % self.texture_width
+                tex_y = int(self.texture_height * (floor_y - cell_y)) % self.texture_height
+
+                floor_x += floor_step_x
+                floor_y += floor_step_y
+
+                # floor
+                self.screen_buffer[x, y] = self.floor_texture[tex_x, tex_y]
+                # ceiling (symmetrical, at SMALL_DISPLAY_HEIGHT - y - 1 instead of y)
+                self.screen_buffer[x, SMALL_DISPLAY_HEIGHT - y - 1] = self.ceiling_texture[tex_x, tex_y]
+
+    def cast_walls(self):
         # The vectorized version of this tutorial:
         # https://lodev.org/cgtutor/raycasting.html
-
-        self.screen_buffer[...] = self.background_color
 
         ray_direction_x = self.view_direction.x + self.camera_plane.x * self.camera_x
         ray_direction_y = self.view_direction.y + self.camera_plane.y * self.camera_x
