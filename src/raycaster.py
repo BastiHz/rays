@@ -67,7 +67,6 @@ class RayCaster:
             self.texture_width,
             self.texture_height
         )
-
         self.textures_dark = [tex >> 1 & 8355711 for tex in self.textures]
         # Insert a dummy at index 0 so the indices of the textures align with
         # their corresponding map integers. Because the lowest wall value is 1.
@@ -89,6 +88,7 @@ class RayCaster:
         # that doesn't matter.
         # And for some reason my textures are rotated or flipped.
 
+        # TODO: Read the numpy documentation and maybe do a tutorial.
         # Ideas for further improvements:
         # - Try pre-allocating the np arrays. For example np.divide()
         #   lets you specify an output array. Also overwrite instead of
@@ -146,9 +146,9 @@ class RayCaster:
         )
 
         # Calculate length of vertical stripe.
-        line_height = self.h // wall_distance
-        line_height_half = line_height // 2
-        line_top = np.maximum(self.screen_height_half - line_height_half, 0).astype(int)
+        line_height = self.h / wall_distance
+        line_height_half = line_height / 2
+        line_top = np.maximum(self.screen_height_half - line_height_half, 0)
         line_bottom = SMALL_DISPLAY_HEIGHT - line_top
 
         # Calculate where exactly the wall was hit.
@@ -158,7 +158,7 @@ class RayCaster:
             side,
             (self.position.x + wall_distance * ray_direction_x) % 1,
             (self.position.y + wall_distance * ray_direction_y) % 1
-        ) % 1
+        )
 
         # x coordinate on the texture
         tex_x = (wall_x * self.texture_width).astype(int)
@@ -175,11 +175,17 @@ class RayCaster:
         step = self.texture_height / line_height
         # Starting texture coordinate.
         tex_pos_start = (line_top - self.h_half + line_height_half) * step
+        # TODO: Can I make this faster?
         for x in range(SMALL_DISPLAY_WIDTH):
-            y = np.arange(line_top[x], line_bottom[x])
-            tex_pos = tex_pos_start[x] + np.arange(len(y)) * step[x]
-            # TODO: Maybe use "&" like in the tutorial instead of "%"?
-            tex_y = (tex_pos % self.texture_height).astype(int)
+            y = np.arange(line_top[x], line_bottom[x], dtype=int)
+            tex_y = (tex_pos_start[x] + np.arange(len(y)) * step[x]).astype(int)
+            # The tutorial has this additional step here :
+            # int texY = (int)texPos & (texHeight - 1);
+            # Which I wrote as:
+            # tex_y = tex_y % self.texture_height
+            # But this seems unnecessary because why would tex_pos ever be
+            # greater than texture_height? So I removed it which makes the loop
+            # significantly faster.
             if side[x]:
                 self.screen_buffer[x, y] = self.textures[wall_int[x]][tex_x[x], tex_y]
             else:
@@ -198,8 +204,8 @@ class RayCaster:
         new_y_int = int(new_position.y)
         if self.world_map[new_y_int, new_x_int] == 0:
             self.position = new_position
-            self.map_position_x[:] = new_x_int
-            self.map_position_y[:] = new_y_int
+            self.map_position_x[...] = new_x_int
+            self.map_position_y[...] = new_y_int
 
     def rotate_keyboard(self, sign, dt):
         # positive sign is right, negative is left
