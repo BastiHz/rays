@@ -40,7 +40,7 @@ class RayCaster:
         self.screen_buffer = np.zeros(SMALL_DISPLAY_SIZE, int)
         self.texture_width = 64
         self.texture_height = 64
-        self.textures = textures.generate_textures(
+        self.textures = textures.generate_walls(
             self.texture_width,
             self.texture_height
         )
@@ -49,8 +49,14 @@ class RayCaster:
         # their corresponding map integers. Because the lowest wall value is 1.
         self.textures.insert(0, None)
         self.textures_dark.insert(0, None)
-        self.floor_texture = self.textures[2]
-        self.ceiling_texture = self.textures[3]
+        self.floor_texture = textures.generate_floor(
+            self.texture_width,
+            self.texture_height
+        )
+        self.ceiling_texture = textures.generate_ceiling(
+            self.texture_width,
+            self.texture_height
+        )
 
         self.move_speed = camera_options["move_speed"]  # squares / s
         self.rotate_speed_keyboard = camera_options["rotate_speed_keyboard"]  # radians / s

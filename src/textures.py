@@ -3,6 +3,7 @@
 
 
 import numpy as np
+import pygame
 
 
 def rgb_to_int(r, g, b):
@@ -20,7 +21,7 @@ def rgb_to_int(r, g, b):
     return (r << 16) + (g << 8) + b
 
 
-def generate_textures(width, height):
+def generate_walls(width, height):
     # This stuff is mostly just copied from the tutorial:
     # https://lodev.org/cgtutor/raycasting.html#Textured_Raycaster
     textures = [np.zeros((width, height), int) for _ in range(8)]
@@ -39,5 +40,21 @@ def generate_textures(width, height):
             textures[7][x, y] = 128 + 256 * 128 + 65536 * 128  # flat grey texture
     # Flip the textures horizontally so they look like in the examples pictures
     # in the tutorial.
-    textures = [np.flip(t, axis=0) for t in textures]
-    return textures
+    return [np.flip(t, axis=0) for t in textures]
+
+
+def generate_floor(width, height):
+    floor = pygame.Surface((width, height))
+    floor.fill((32, 32, 32))
+    pygame.draw.rect(floor, (32, 32, 64), floor.get_rect(), 10)
+    return pygame.surfarray.array2d(floor)
+
+
+def generate_ceiling(width, height):
+    ceiling = pygame.Surface((width, height))
+    ceiling.fill((250, 250, 250))
+    pygame.draw.rect(ceiling, (64, 64, 64), ceiling.get_rect(), 2)
+    center = (width / 2, height / 2)
+    pygame.draw.circle(ceiling, (128, 128, 128), center, 6, 1)
+    pygame.draw.circle(ceiling, (255, 255, 128), center, 5)
+    return pygame.surfarray.array2d(ceiling)
