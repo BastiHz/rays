@@ -10,28 +10,6 @@ from src import textures
 np.seterr(divide='ignore')
 
 
-def rgb_to_int(r, g, b):
-    """Convert color tuples to ints.
-    Normally I could call int() on a pygame.Color object but there
-    seems to be a bug in the __int__() method of pygame.Color objects.
-    Until that is fixed I do the conversion manually.
-
-    r, g, and b must be integers
-
-    I could also use a 3-dimensional np array and avoid the conversion
-    to ints but blitting that to a surface seems to be slower than with
-    a 2d array.
-    """
-    return (r << 16) + (g << 8) + b
-
-
-def save_divide(x, y):
-    try:
-        return x / y
-    except ZeroDivisionError:
-        return math.inf
-
-
 class RayCaster:
     def __init__(self, world):
         self.position = pygame.Vector2(world["position_xy"])

@@ -5,10 +5,24 @@
 import numpy as np
 
 
-# This stuff is mostly just copied from the tutorial:
-# https://lodev.org/cgtutor/raycasting.html#Textured_Raycaster
+def rgb_to_int(r, g, b):
+    """Convert color tuples to ints.
+    Normally I could call int() on a pygame.Color object but there
+    seems to be a bug in the __int__() method of pygame.Color objects.
+    Until that is fixed I do the conversion manually.
+
+    r, g, and b must be integers
+
+    I could also use a 3-dimensional np array and avoid the conversion
+    to ints but blitting that to a surface seems to be slower than with
+    a 2d array.
+    """
+    return (r << 16) + (g << 8) + b
+
 
 def generate_textures(width, height):
+    # This stuff is mostly just copied from the tutorial:
+    # https://lodev.org/cgtutor/raycasting.html#Textured_Raycaster
     textures = [np.zeros((width, height), int) for _ in range(8)]
     for x in range(width):
         for y in range(height):
@@ -23,9 +37,7 @@ def generate_textures(width, height):
             textures[5][x, y] = 65536 * 192 * (x % 16 and y % 16)  # red bricks
             textures[6][x, y] = 65536 * y_color  # red gradient
             textures[7][x, y] = 128 + 256 * 128 + 65536 * 128  # flat grey texture
-
     # Flip the textures horizontally so they look like in the examples pictures
     # in the tutorial.
     textures = [np.flip(t, axis=0) for t in textures]
-
     return textures
