@@ -37,7 +37,6 @@ class RayCaster:
         self.camera_x = np.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
 
-        self.screen_buffer = np.zeros(SMALL_DISPLAY_SIZE, int)
         self.texture_width = 64
         self.texture_height = 64
         self.textures = textures.generate_walls(
@@ -65,11 +64,16 @@ class RayCaster:
         self.move_forward_velocity = self.view_direction * self.move_speed
         self.move_right_velocity = self.move_forward_velocity.rotate(90)
 
-    def cast(self):
-        self.cast_floor_ceiling()
-        self.cast_walls()
+    def cast(self, target_surface):
+        # Using pygame.surfarray.pixels2d() with a temporary screen buffer is
+        # faster than using pygame.surfarray.blit_array(). The screen buffer
+        # here has to be temporary because during its lifetime the surface is
+        # locked and cannot be blitted to or from.
+        screen_buffer = pygame.surfarray.pixels2d(target_surface)
+        # self.cast_floor_ceiling(screen_buffer)
+        self.cast_walls(screen_buffer)
 
-    def cast_floor_ceiling(self):
+    def cast_floor_ceiling(self, screen_buffer):
         # https://lodev.org/cgtutor/raycasting2.html
 
         # TODO: vectorize this
@@ -120,11 +124,11 @@ class RayCaster:
                 floor_y += floor_step_y
 
                 # floor
-                self.screen_buffer[x, y] = self.floor_texture[tex_x, tex_y]
+                screen_buffer[x, y] = self.floor_texture[tex_x, tex_y]
                 # ceiling (symmetrical, at SMALL_DISPLAY_HEIGHT - y - 1 instead of y)
-                self.screen_buffer[x, SMALL_DISPLAY_HEIGHT - y - 1] = self.ceiling_texture[tex_x, tex_y]
+                screen_buffer[x, SMALL_DISPLAY_HEIGHT - y - 1] = self.ceiling_texture[tex_x, tex_y]
 
-    def cast_walls(self):
+    def cast_walls(self, screen_buffer):
         # The vectorized version of this tutorial:
         # https://lodev.org/cgtutor/raycasting.html
 
@@ -215,9 +219,9 @@ class RayCaster:
             # greater than texture_height? So I removed it which makes the loop
             # significantly faster.
             if side[x]:
-                self.screen_buffer[x, y] = self.textures[wall_int[x]][tex_x[x], tex_y]
+                screen_buffer[x, y] = self.textures[wall_int[x]][tex_x[x], tex_y]
             else:
-                self.screen_buffer[x, y] = self.textures_dark[wall_int[x]][tex_x[x], tex_y]
+                screen_buffer[x, y] = self.textures_dark[wall_int[x]][tex_x[x], tex_y]
 
     def move_straight(self, sign, dt):
         # positive sign is forward, negative is backward
