@@ -18,7 +18,7 @@ class Game:
         self.clock = pygame.time.Clock()
         resources.load_all()
         self.running = True
-        self.scene = SCENES["main game"](self, "test_1")
+        self.scene = SCENES["main game"](self, "maze_and_open_room")
         self.scene.start()
         self.persistent_scene_data = {}
         self.dev_overlay_visible = True
