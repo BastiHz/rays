@@ -12,10 +12,15 @@ np.seterr(divide='ignore')
 
 class RayCaster:
     def __init__(self, world):
-        self.position = pygame.Vector2(world["position_xy"])
+        x, y = pygame.Vector2(world["position_xy"])
+        if x % 1 != 0 or y % 1 != 0:
+            raise ValueError("\"position_xy\" must be a tuple of integers.")
+        # Add 0.5 so that the camera starts in the middle of a cell.
+        self.position = pygame.Vector2(x + 0.5, y + 0.5)
         self.map_position_x = np.full(SMALL_DISPLAY_WIDTH, self.position.x, int)
         self.map_position_y = np.full(SMALL_DISPLAY_WIDTH, self.position.y, int)
         self.view_direction = pygame.Vector2(world["view_direction_xy"])
+        self.view_direction.scale_to_length(1)
         camera_options = options["camera"]
         fov_radians = math.radians(camera_options["fov_degrees"])
         camera_plane_half_len = math.tan(fov_radians / 2)
@@ -36,6 +41,8 @@ class RayCaster:
         # right edge is +1.
         self.camera_x = np.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
+        if self.world_map[self.map_position_y[0], self.map_position_x[0]] != 0:
+            raise ValueError("Start position is inside wall.")
         self.screen_x = np.arange(SMALL_DISPLAY_WIDTH)
         self.screen_y = np.arange(SMALL_DISPLAY_HEIGHT)
         self.ceiling_y = np.arange(self.screen_height_half)
