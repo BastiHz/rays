@@ -46,7 +46,7 @@ class RayCaster:
         # would be neither floor nor ceiling.
         camera_y = (SMALL_DISPLAY_HEIGHT - 1) / 2
         # Horizontal distance from the viewer to the ceiling rows.
-        self.row_distance = camera_y / (self.ceiling_y - camera_y)
+        self.row_distance = camera_y / (camera_y - self.ceiling_y)
         # Ray direction for leftmost and rightmos ray.
         self.ray_direction_left = self.view_direction - self.camera_plane
         self.ray_direction_right = self.view_direction + self.camera_plane
