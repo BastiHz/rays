@@ -36,6 +36,10 @@ class RayCaster:
         # right edge is +1.
         self.camera_x = np.linspace(-1, 1, SMALL_DISPLAY_WIDTH)
         self.world_map = world["map"]
+        self.screen_x = np.arange(SMALL_DISPLAY_WIDTH)
+        self.screen_y = np.arange(SMALL_DISPLAY_HEIGHT)
+        self.ceiling_y = np.arange(self.screen_height_half)
+        self.floor_y = SMALL_DISPLAY_HEIGHT - 1 - self.ceiling_y
 
         self.texture_width = 64
         self.texture_height = 64
@@ -64,73 +68,93 @@ class RayCaster:
         self.move_forward_velocity = self.view_direction * self.move_speed
         self.move_right_velocity = self.move_forward_velocity.rotate(90)
 
+
+        # TODO: sort this stuff between the other stuff above so that the placement makes sense.
+
+        # Only self.ceiling is used in most of the calculations because floor
+        # and ceiling are symmetrical.
+
+        # TODO: Adjust those when rotating or moving. If there are steps that
+        #  have to be done when moving OR rotating then do those steps only
+        #  once per update. Keep track of if the camera moved or rotated since
+        #  the last update and only then update those values.
+
+        # Vertical position of the camera. Exactly in the middle, so that half
+        # the screen is below and half is above. That's why
+        # SMALL_DISPLAY_HEIGHT must be an even number or else the center row
+        # would be neither floor nor ceiling.
+        camera_y = (SMALL_DISPLAY_HEIGHT - 1) / 2
+        # Horizontal distance from the camera to the ceiling.
+        self.row_distance = camera_y / (self.ceiling_y - camera_y)
+
+        # Ray direction for leftmost and rightmos ray.
+        self.ray_direction_left = self.view_direction - self.camera_plane
+        self.ray_direction_right = self.view_direction + self.camera_plane
+        # to calculate the real world step vector we have to add for each x
+        # (parallel to camera plane)
+        self.fc_step_x = np.outer(
+            self.screen_x,
+            self.row_distance
+            * (self.ray_direction_right.x - self.ray_direction_left.x)
+            / SMALL_DISPLAY_WIDTH
+        )
+        self.fc_step_y = np.outer(
+            self.screen_x,
+            self.row_distance
+            * (self.ray_direction_right.y - self.ray_direction_left.y)
+            / SMALL_DISPLAY_WIDTH
+        )
+
+        # world coordinates of floor and ceiling hits
+        self.fc_x = self.fc_step_x + np.broadcast_to(
+            self.position.x + self.row_distance * self.ray_direction_left.x,
+            (SMALL_DISPLAY_WIDTH, self.screen_height_half)
+        )
+        self.fc_y = self.fc_step_y + np.broadcast_to(
+            self.position.y + self.row_distance * self.ray_direction_left.y,
+            (SMALL_DISPLAY_WIDTH, self.screen_height_half)
+        )
+
+        self.fc_cell_x = np.trunc(self.fc_x)
+        self.fc_cell_y = np.trunc(self.fc_y)
+
+        # get the texture coordinate from the fractional part
+        # The tutorial has this "& (texWidth - 1)" at the end but I don't think
+        # that is necessary.
+        # The "self.fc_x - self.fc_cell_x" is to get the fractional part but I
+        # could also use "%1" instead.
+        self.fc_tex_x = (self.texture_width * (self.fc_x - self.fc_cell_x)).astype(int)
+        self.tex_y_ceiling = (self.texture_height * (self.fc_y - self.fc_cell_y)).astype(int)
+        self.tex_y_floor = self.texture_height - 1 - self.tex_y_ceiling
+
     def cast(self, target_surface):
+
+        # TODO: separate between cast and draw. That is already almost done for
+        #  ceiling and floor but for the walls I need to save the vertical
+        #  stripes in a list of arrays for later drawing.
+        #  Remove the target surface and temporary buffer from here.
+
         # Using pygame.surfarray.pixels2d() with a temporary screen buffer is
         # faster than using pygame.surfarray.blit_array(). The screen buffer
         # here has to be temporary because during its lifetime the surface is
         # locked and cannot be blitted to or from.
         screen_buffer = pygame.surfarray.pixels2d(target_surface)
-        # self.cast_floor_ceiling(screen_buffer)
+        self.cast_floor_ceiling(screen_buffer)
         self.cast_walls(screen_buffer)
 
     def cast_floor_ceiling(self, screen_buffer):
-        # https://lodev.org/cgtutor/raycasting2.html
-
-        # TODO: vectorize this
-        for y in range(SMALL_DISPLAY_HEIGHT):
-            # rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-            ray_dir_x_0 = self.view_direction.x - self.camera_plane.x
-            ray_dir_y_0 = self.view_direction.y - self.camera_plane.y
-            ray_dir_x_1 = self.view_direction.x + self.camera_plane.x
-            ray_dir_y_1 = self.view_direction.y + self.camera_plane.y
-
-            # Current y position compared to the center of the screen (the horizon)
-            p = y - self.screen_height_half
-            if p == 0:
-                # Why isn't this handled in the tutorial?
-                # However it shouldn't matter because there will always be
-                # walls at the horizon.
-                continue
-
-            # Vertical position of the camera.
-            pos_z = self.screen_height_half  # FIXME: unnecessary, remove this
-
-            # Horizontal distance from the camera to the floor for the current row.
-            # 0.5 is the z position exactly in the middle between floor and ceiling.
-            row_distance = pos_z / p
-
-            # calculate the real world step vector we have to add for each x 
-            # (parallel to camera plane), adding step by step avoids 
-            # multiplications with a weight in the inner loop
-            floor_step_x = row_distance * (ray_dir_x_1 - ray_dir_x_0) / SMALL_DISPLAY_WIDTH
-            floor_step_y = row_distance * (ray_dir_y_1 - ray_dir_y_0) / SMALL_DISPLAY_WIDTH
-            
-            # real world coordinates of the leftmost column. This will be 
-            # updated as we step to the right.
-            floor_x = self.position.x + row_distance * ray_dir_x_0
-            floor_y = self.position.y + row_distance * ray_dir_y_0
-
-            for x in range(SMALL_DISPLAY_WIDTH):
-                # the cell coord is simply got from the integer parts 
-                # of floor_x and floor_y
-                cell_x = int(floor_x)
-                cell_y = int(floor_y)
-            
-                # get the texture coordinate from the fractional part
-                tex_x = int(self.texture_width * (floor_x - cell_x)) % self.texture_width
-                tex_y = int(self.texture_height * (floor_y - cell_y)) % self.texture_height
-
-                floor_x += floor_step_x
-                floor_y += floor_step_y
-
-                # floor
-                screen_buffer[x, y] = self.floor_texture[tex_x, tex_y]
-                # ceiling (symmetrical, at SMALL_DISPLAY_HEIGHT - y - 1 instead of y)
-                screen_buffer[x, SMALL_DISPLAY_HEIGHT - y - 1] = self.ceiling_texture[tex_x, tex_y]
+        # Most of the math for this only needs to be updated when moving or
+        # rotating the camera.
+        # TODO: Put the other code from rotate() or __init__() back in here but
+        #  run it only if the camera moved or rotated last frame.
+        pass
 
     def cast_walls(self, screen_buffer):
-        # The vectorized version of this tutorial:
-        # https://lodev.org/cgtutor/raycasting.html
+
+        # TODO: Most of these calculations only need to be done after the
+        #  camera moved or rotated. Put the filling of the screen buffer into
+        #  draw(). Save the vertical stripes in a list of arrays for later drawing.
+        #  Beware of name clashes with the stuff for the ceiling and floor.
 
         ray_direction_x = self.view_direction.x + self.camera_plane.x * self.camera_x
         ray_direction_y = self.view_direction.y + self.camera_plane.y * self.camera_x
@@ -188,13 +212,17 @@ class RayCaster:
 
         # Calculate where exactly the wall was hit to get
         # the x-coordinate on the texture.
-        # The "% 1" has the same effect as this line in
-        # the tutorial: wallX -= floor((wallX))
-        tex_x = ((np.where(
+        # The "% 1" gets the fractional part.
+        tex_x = np.where(
             side,
-            (self.position.x + wall_distance * ray_direction_x),
-            (self.position.y + wall_distance * ray_direction_y)
-        ) % 1) * self.texture_width).astype(int)
+            self.position.x + wall_distance * ray_direction_x,
+            self.position.y + wall_distance * ray_direction_y
+        )
+        tex_x = ((tex_x % 1) * self.texture_width).astype(int)
+
+        # TODO: Find out what effect this step has and if I can remove it.
+        #   Maybe to prevent negative tex_x? Saw something like that
+        #   for ceiling and floor.
         tex_x = np.where(
             np.logical_or(
                 np.logical_and(np.logical_not(side), ray_direction_x > 0),
@@ -208,7 +236,7 @@ class RayCaster:
         step = self.texture_height / line_height
         # Starting texture coordinate.
         tex_pos_start = (line_top - self.h_half + line_height_half) * step
-        for x in range(SMALL_DISPLAY_WIDTH):
+        for x in self.screen_x:
             y = np.arange(line_top[x], line_bottom[x], dtype=int)
             tex_y = (tex_pos_start[x] + np.arange(len(y)) * step[x]).astype(int)
             # The tutorial has this additional step here :
@@ -222,6 +250,22 @@ class RayCaster:
                 screen_buffer[x, y] = self.textures[wall_int[x]][tex_x[x], tex_y]
             else:
                 screen_buffer[x, y] = self.textures_dark[wall_int[x]][tex_x[x], tex_y]
+
+    def draw(self, target_surface):
+        # Using pygame.surfarray.pixels2d() with a temporary screen buffer is
+        # faster than using pygame.surfarray.blit_array(). The screen buffer
+        # here has to be temporary because during its lifetime the surface is
+        # locked and cannot be blitted to or from.
+        screen_buffer = pygame.surfarray.pixels2d(target_surface)
+        # ceiling and floor:
+        screen_buffer[:, self.ceiling_y] = self.ceiling_texture[self.fc_tex_x, self.tex_y_ceiling]
+        screen_buffer[:, self.floor_y] = self.floor_texture[self.fc_tex_x, self.tex_y_floor]
+        # walls:
+        # not done yet.
+
+        # This really needs to be done every frame and not only after moving
+        # or rotating. Because later some sprites will change shape or move
+        # across the view.
 
     def move_straight(self, sign, dt):
         # positive sign is forward, negative is backward
@@ -254,3 +298,40 @@ class RayCaster:
         self.camera_plane.rotate_ip_rad(angle)
         self.move_forward_velocity.rotate_ip_rad(angle)
         self.move_right_velocity.rotate_ip_rad(angle)
+
+        # Stuff for ceiling and floor:
+        # TODO: Put that back into cast_floor_ceiling().
+        self.ray_direction_left.rotate_ip_rad(angle)
+        self.ray_direction_right.rotate_ip_rad(angle)
+        self.fc_step_x = np.outer(
+            self.screen_x,
+            self.row_distance
+            * (self.ray_direction_right.x - self.ray_direction_left.x)
+            / SMALL_DISPLAY_WIDTH
+        )
+        self.fc_step_y = np.outer(
+            self.screen_x,
+            self.row_distance
+            * (self.ray_direction_right.y - self.ray_direction_left.y)
+            / SMALL_DISPLAY_WIDTH
+        )
+        self.fc_x = self.fc_step_x + np.broadcast_to(
+            self.position.x + self.row_distance * self.ray_direction_left.x,
+            (SMALL_DISPLAY_WIDTH, self.screen_height_half)
+        )
+        self.fc_y = self.fc_step_y + np.broadcast_to(
+            self.position.y + self.row_distance * self.ray_direction_left.y,
+            (SMALL_DISPLAY_WIDTH, self.screen_height_half)
+        )
+        self.fc_cell_x = np.trunc(self.fc_x)
+        self.fc_cell_y = np.trunc(self.fc_y)
+        self.fc_tex_x = (self.texture_width * (self.fc_x - self.fc_cell_x)).astype(int)
+        self.tex_y_ceiling = (self.texture_height * (self.fc_y - self.fc_cell_y)).astype(int)
+        self.tex_y_floor = (self.texture_height - 1 - self.tex_y_ceiling % self.texture_height)
+        # try:
+        #     assert np.all(self.tex_y_floor < 64)
+        # except AssertionError:
+        #     print(f"{self.tex_y_floor.max()=}")
+        #     print(f"{self.tex_y_floor.min()=}")
+        #     print(f"{self.tex_y_ceiling.max()=}")
+        #     print(f"{self.tex_y_ceilingqqqq.min()=}")

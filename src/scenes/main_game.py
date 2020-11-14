@@ -60,6 +60,8 @@ class MainGame(Scene):
             # the rotation rate was almost exactly half of what it is supposed
             # to be. This was caused by there being 2 mousemotion events
             # on average per frame.
+            # Cumulating all mouse motions during a frame is more efficient
+            # than doing many small rotations.
             self.mouse_motion_x += event.rel[0]
         elif (event.type == pygame.ACTIVEEVENT
               and event.gain == 0 and event.state == 1):
