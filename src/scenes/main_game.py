@@ -87,13 +87,11 @@ class MainGame(Scene):
             self.raycaster.rotate_mouse(self.mouse_motion_x)
             self.mouse_motion_x = 0
 
-        self.raycaster.cast(self.target_surface)
+        self.raycaster.cast()
 
     def draw(self):
-        # self.target_surface is automatically updated with the camera view
-        # from the raycaster's screen buffer. Any drawing in this function will
-        # be drawn on top of it.
-        pass
+        self.raycaster.draw(self.target_surface)
+
 
 class MainGameDevOverlay(DevOverlay):
     def __init__(self, scene):
