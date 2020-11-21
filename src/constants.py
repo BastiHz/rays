@@ -49,10 +49,10 @@ DEFAULT_OPTIONS = {
         TOGGLE_DEV_OVERLAY: "f1"
     },
     "camera": {
-        "fov_degrees": 66,
-        "move_speed": 5,  # squares / s
-        "rotate_speed_keyboard": math.pi,  # radians / s
-        "rotate_speed_mouse": math.pi,  # radians / SMALL_WINDOW_WIDTH
-        "rotate_speed_mouse_multiplier": 1.5
+        "fov degrees": 66,
+        "move speed": 5,  # squares / s
+        "rotate speed keyboard": math.pi,  # radians / s
+        "rotate speed mouse": math.pi,  # radians / SMALL_WINDOW_WIDTH
+        "rotate speed mouse multiplier": 1.5
     }
 }

@@ -12,17 +12,17 @@ np.seterr(divide='ignore')
 
 class RayCaster:
     def __init__(self, world):
-        x, y = pygame.Vector2(world["position_xy"])
+        x, y = pygame.Vector2(world["position xy"])
         if x % 1 != 0 or y % 1 != 0:
             raise ValueError("\"position_xy\" must be a tuple of integers.")
         # Add 0.5 so that the camera starts in the middle of a cell.
         self.position = pygame.Vector2(x + 0.5, y + 0.5)
         self.map_position_x = np.full(SMALL_DISPLAY_WIDTH, self.position.x, int)
         self.map_position_y = np.full(SMALL_DISPLAY_WIDTH, self.position.y, int)
-        self.view_direction = pygame.Vector2(world["view_direction_xy"])
+        self.view_direction = pygame.Vector2(world["view direction xy"])
         self.view_direction.scale_to_length(1)
         camera_options = options["camera"]
-        fov_radians = math.radians(camera_options["fov_degrees"])
+        fov_radians = math.radians(camera_options["fov degrees"])
         camera_plane_half_len = math.tan(fov_radians / 2)
         # View direction and camera plane must be perpendicular to each other.
         # So the camera plane is rotated 90 degrees counterclockwise to
@@ -82,10 +82,10 @@ class RayCaster:
             self.texture_height
         )
 
-        self.move_speed = camera_options["move_speed"]  # squares / s
-        self.rotate_speed_keyboard = camera_options["rotate_speed_keyboard"]  # radians / s
-        self.rotate_speed_mouse = camera_options["rotate_speed_mouse"] / SMALL_DISPLAY_WIDTH  # radians / pixel
-        self.rotate_speed_mouse *= camera_options["rotate_speed_mouse_multiplier"]
+        self.move_speed = camera_options["move speed"]  # squares / s
+        self.rotate_speed_keyboard = camera_options["rotate speed keyboard"]  # radians / s
+        self.rotate_speed_mouse = camera_options["rotate speed mouse"] / SMALL_DISPLAY_WIDTH  # radians / pixel
+        self.rotate_speed_mouse *= camera_options["rotate speed mouse multiplier"]
         self.move_forward_velocity = self.view_direction * self.move_speed
         self.move_right_velocity = self.move_forward_velocity.rotate(90)
 

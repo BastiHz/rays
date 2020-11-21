@@ -1,10 +1,10 @@
 {
     "camera": {
-        "fov_degrees": 66,
-        "move_speed": 5,
-        "rotate_speed_keyboard": 3.141592653589793,
-        "rotate_speed_mouse": 3.141592653589793,
-        "rotate_speed_mouse_multiplier": 1.5
+        "fov degrees": 66,
+        "move speed": 5,
+        "rotate speed keyboard": 3.141592653589793,
+        "rotate speed mouse": 3.141592653589793,
+        "rotate speed mouse multiplier": 1.5
     },
     "controls": {
         "move backward": "s",
