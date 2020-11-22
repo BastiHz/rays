@@ -32,27 +32,3 @@ ROTATE_LEFT = "rotate left"
 ROTATE_RIGHT = "rotate right"
 TOGGLE_DEV_OVERLAY = "toggle dev overlay"
 PAUSE = "pause"
-
-
-# ATTENTION: Do not put constants from above into the default options below.
-#  Because it has happened multiple times that I changed a constant and forgot
-#  to regenerate the options file which led to weird bugs.
-DEFAULT_OPTIONS = {
-    "controls": {
-        MOVE_FORWARD: "w",
-        MOVE_LEFT: "a",
-        MOVE_BACKWARD: "s",
-        MOVE_RIGHT: "d",
-        ROTATE_LEFT: "q",
-        ROTATE_RIGHT: "e",
-        PAUSE: "p",
-        TOGGLE_DEV_OVERLAY: "f1"
-    },
-    "camera": {
-        "fov degrees": 66,
-        "move speed": 5,  # squares / s
-        "rotate speed keyboard": math.pi,  # radians / s
-        "rotate speed mouse": math.pi,  # radians / SMALL_WINDOW_WIDTH
-        "rotate speed mouse multiplier": 1.5
-    }
-}

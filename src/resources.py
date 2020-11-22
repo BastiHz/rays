@@ -29,12 +29,8 @@ def load_worlds():
 
 
 def load_options():
-    try:
-        with open("options.json", "r") as file:
-            options.update(json.load(file))
-    except FileNotFoundError:
-        options.update(DEFAULT_OPTIONS)
-        save_options()
+    with open("options.json", "r") as file:
+        options.update(json.load(file))
 
 
 def save_options():
